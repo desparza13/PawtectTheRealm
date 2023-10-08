@@ -17,8 +17,22 @@ moving_right = False
 moving_up = False
 moving_down = False
 
+#helped function to scale image
+def scale_img(image, scale):
+    width = image.get_width()
+    height = image.get_height()
+    new_image = pygame.transform.scale(image, (width * scale, height * scale))
+    return new_image
+
+#Character images
+animation_list = []
+for i in range(4):
+    image = pygame.image.load(f"assets/characters/kebo/idle/{i}.png").convert_alpha()
+    image = scale_img(image, const.SCALE)
+    animation_list.append(image)
+
 #Create player
-kebo = Character(100, 100)
+kebo = Character(100, 100, animation_list)
 
 #Main game loop
 run = True
@@ -33,17 +47,20 @@ while run:
     dx = 0
     dy = 0
     if moving_left:
-        dx -= 5
+        dx -= const.SPEED
     if moving_right:
-        dx += 5
+        dx += const.SPEED
     if moving_down:
-        dy += 5
+        dy += const.SPEED
     if moving_up:
-        dy -= 5
+        dy -= const.SPEED
     
     #Move player
     kebo.move(dx, dy)
         
+    #Update player
+    kebo.update()
+    
     #Draw player on the screen
     kebo.draw(screen)
     
