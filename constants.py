@@ -11,6 +11,10 @@ BG = (40, 25,25)
 
 #Player size
 SCALE = 3
+OFFSET = 12
+
+#Weapon size
+WEAPON_SCALE = 1.5
 
 #Player movement
 SPEED = 5

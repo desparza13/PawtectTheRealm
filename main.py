@@ -1,7 +1,7 @@
 import pygame
 import constants as const 
 from character import Character
-
+from weapon import Weapon
 pygame.init()
 
 #Create game window
@@ -24,15 +24,34 @@ def scale_img(image, scale):
     new_image = pygame.transform.scale(image, (width * scale, height * scale))
     return new_image
 
-#Character images
-animation_list = []
-for i in range(4):
-    image = pygame.image.load(f"assets/characters/kebo/idle/{i}.png").convert_alpha()
-    image = scale_img(image, const.SCALE)
-    animation_list.append(image)
+#Load weapon images
+weapon_image = scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(),const.WEAPON_SCALE)
+
+#Load characters images
+animation_types = ["idle", "run"]
+mob_types = ["kebo","black_cat", "brown_cat","orange_cat", "budgie", "budgie2", "big_demon"]
+
+mob_animations = []
+
+for mob in mob_types:
+    #load character images
+    animation_list = []
+    for animation in animation_types:
+        #reset temporary list of images
+        temp_list = []
+        for i in range(4):
+            image = pygame.image.load(f"assets/characters/{mob}/{animation}/{i}.png").convert_alpha()
+            image = scale_img(image, const.SCALE)
+            temp_list.append(image)
+        animation_list.append(temp_list)
+    mob_animations.append(animation_list)
+    
 
 #Create player
-kebo = Character(100, 100, animation_list)
+kebo = Character(100, 100, mob_animations,0)
+
+#Create player's weapon
+weapon = Weapon(weapon_image)
 
 #Main game loop
 run = True
@@ -60,9 +79,11 @@ while run:
         
     #Update player
     kebo.update()
+    weapon.update(kebo)
     
     #Draw player on the screen
     kebo.draw(screen)
+    weapon.draw(screen)
     
     #Event handler
     for event in pygame.event.get():
