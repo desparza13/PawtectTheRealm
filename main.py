@@ -26,6 +26,7 @@ def scale_img(image, scale):
 
 #Load weapon images
 weapon_image = scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(),const.WEAPON_SCALE)
+projectile_image = scale_img(pygame.image.load("assets/weapons/projectile.png").convert_alpha(),const.WEAPON_SCALE)
 
 #Load characters images
 animation_types = ["idle", "run"]
@@ -51,7 +52,10 @@ for mob in mob_types:
 kebo = Character(100, 100, mob_animations,0)
 
 #Create player's weapon
-weapon = Weapon(weapon_image)
+weapon = Weapon(weapon_image, projectile_image)
+
+#Create sprite groups
+projectile_group = pygame.sprite.Group()
 
 #Main game loop
 run = True
@@ -79,12 +83,21 @@ while run:
         
     #Update player
     kebo.update()
-    weapon.update(kebo)
+    projectile = weapon.update(kebo)
+    if projectile:
+        projectile_group.add(projectile)
+    
+    for projectile in projectile_group:
+        projectile.update()
     
     #Draw player on the screen
     kebo.draw(screen)
     weapon.draw(screen)
+    for projectile in projectile_group:
+        projectile.draw(screen)
     
+    projectile_group.draw(screen)
+
     #Event handler
     for event in pygame.event.get():
         #Close game
