@@ -29,6 +29,11 @@ def scale_img(image, scale):
     new_image = pygame.transform.scale(image, (width * scale, height * scale))
     return new_image
 
+#Load heart images
+heart_empty = scale_img(pygame.image.load("assets/items/heart_empty.png").convert_alpha(),const.ITEM_SCALE)
+heart_half = scale_img(pygame.image.load("assets/items/heart_half.png").convert_alpha(),const.ITEM_SCALE)
+heart_full = scale_img(pygame.image.load("assets/items/heart_full.png").convert_alpha(),const.ITEM_SCALE)
+
 #Load weapon images
 weapon_image = scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(),const.WEAPON_SCALE)
 projectile_image = scale_img(pygame.image.load("assets/weapons/projectile.png").convert_alpha(),const.WEAPON_SCALE)
@@ -52,10 +57,24 @@ for mob in mob_types:
         animation_list.append(temp_list)
     mob_animations.append(animation_list)
     
-        
+#Function for displaying game info
+def draw_info():
+    pygame.draw.rect(screen, const.PANEL_INFO, (0,0,const.SCREEN_WIDTH,50))
+    pygame.draw.line(screen,const.WHITE,(0,50), (const.SCREEN_WIDTH,50))
+    #draw lives
+    half_hear_drawn = False
+    for i in range(5):
+        if kebo.health >= ((i+1)*20): #One full heart = 20 health
+            screen.blit(heart_full, (10 + i * 50,0))
+        elif(kebo.health %20 > 0) and half_hear_drawn == False:
+            screen.blit(heart_half, (10 + i * 50,0))
+            half_hear_drawn = True
+        else:
+            screen.blit(heart_empty, (10 + i * 50,0))
+            
 
 #Create player
-kebo = Character(100, 100, 100, mob_animations,0)
+kebo = Character(100, 100, 10, mob_animations,0)
 
 #Create enemy
 enemy = Character(200, 300, 100, mob_animations,1)
@@ -135,6 +154,7 @@ while run:
         enemy.draw(screen)
     
     damage_text_group.draw(screen)
+    draw_info()
     
     #Event handler
     for event in pygame.event.get():

@@ -8,6 +8,8 @@ SCREEN_HEIGHT = 600
 #Colors
 RED = (255,0,0)
 BG = (40, 25,25)
+PANEL_INFO = (50,50,50)
+WHITE = (255,255,255)
 
 #Player size
 SCALE = 3
@@ -21,3 +23,6 @@ WEAPON_SCALE = 1.5
 
 #Projectile movement
 PROJECTILE_SPEED = 10
+
+#Item size
+ITEM_SCALE = 3
