@@ -1,3 +1,4 @@
+import random
 import pygame
 import math
 import constants as const
@@ -53,14 +54,30 @@ class Projectile(pygame.sprite.Sprite):
         self.dx = math.cos(math.radians(self.angle)) * const.PROJECTILE_SPEED
         self.dy = -(math.sin(math.radians(self.angle)) * const.PROJECTILE_SPEED) #negative because pygame y coordinate increases down the screen
     
-    def update(self):
+    def update(self, enemy_list):
+        #reset variables
+        damage = 0
+        damage_pos = None
+        
         #reposition based on speed
         self.rect.x += self.dx
         self.rect.y += self.dy
         
         #check if arrow has gone off screen
         if self.rect.right < 0 or self.rect.left > const.SCREEN_WIDTH or self.rect.bottom < 0 or self.rect.top > const.SCREEN_HEIGHT:
-            self.kill()
+            self.kill() #kill the projectile
+            
+        #check collision between projectile and enemies
+        for enemy in enemy_list:
+            if enemy.rect.colliderect(self.rect) and enemy.alive: #if two rectangles are overlapping
+                damage = 10 + random.randint(-5,5) #damage between 5-15
+                damage_pos = enemy.rect
+                enemy.health -= damage
+                self.kill() #kill the projectile
+                break
+            
+        return damage,damage_pos
+        
 
     def draw(self, surface):
         surface.blit(self.image, ((self.rect.centerx - int(self.image.get_width()/2)), self.rect.centery - int(self.image.get_height()/2)))

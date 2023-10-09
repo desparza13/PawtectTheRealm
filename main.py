@@ -1,6 +1,7 @@
 import pygame
 import constants as const 
 from character import Character
+from damage_text import DamageText
 from weapon import Weapon
 pygame.init()
 
@@ -16,6 +17,10 @@ moving_left = False
 moving_right = False
 moving_up = False
 moving_down = False
+
+#Define font variables
+font = pygame.font.SysFont("timesnewroman",20)
+#print(pygame.font.get_fonts())
 
 #helped function to scale image
 def scale_img(image, scale):
@@ -47,15 +52,25 @@ for mob in mob_types:
         animation_list.append(temp_list)
     mob_animations.append(animation_list)
     
+        
 
 #Create player
-kebo = Character(100, 100, mob_animations,0)
+kebo = Character(100, 100, 100, mob_animations,0)
+
+#Create enemy
+enemy = Character(200, 300, 100, mob_animations,1)
 
 #Create player's weapon
 weapon = Weapon(weapon_image, projectile_image)
 
+#Create empty enemy list 
+enemy_list = []
+enemy_list.append(enemy)
+
 #Create sprite groups
+damage_text_group = pygame.sprite.Group()
 projectile_group = pygame.sprite.Group()
+
 
 #Main game loop
 run = True
@@ -81,23 +96,46 @@ while run:
     #Move player
     kebo.move(dx, dy)
         
-    #Update player
+    #Update 
+    #   player
     kebo.update()
+    
+    #   projectile
     projectile = weapon.update(kebo)
     if projectile:
         projectile_group.add(projectile)
     
     for projectile in projectile_group:
-        projectile.update()
+        damage, damage_pos = projectile.update(enemy_list)
+        if damage:
+            damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),const.RED, font)
+            damage_text_group.add(damage_text)
+        
+    #   enemies
+    for enemy in enemy_list:
+        enemy.update()
     
-    #Draw player on the screen
+    damage_text_group.update()
+    
+    #Draw 
+    #   player on the screen
     kebo.draw(screen)
+    
+    #   Weapon on the screen
     weapon.draw(screen)
+    
+    #   Projectiles on the screen
     for projectile in projectile_group:
         projectile.draw(screen)
     
     projectile_group.draw(screen)
 
+    #   enemies on screen
+    for enemy in enemy_list:
+        enemy.draw(screen)
+    
+    damage_text_group.draw(screen)
+    
     #Event handler
     for event in pygame.event.get():
         #Close game
@@ -106,31 +144,31 @@ while run:
         #Keyboard presses
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a:
-                print("Left")
+                # print("Left")
                 moving_left = True
             if event.key == pygame.K_d:
-                print("Right")
+                # print("Right")
                 moving_right = True
             if event.key == pygame.K_w:
-                print("Up")
+                # print("Up")
                 moving_up = True
             if event.key == pygame.K_s:
-                print("Down")
+                # print("Down")
                 moving_down = True
                 
         #Keyboard released
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
-                print("Left")
+                # print("Left")
                 moving_left = False
             if event.key == pygame.K_d:
-                print("Right")
+                # print("Right")
                 moving_right = False
             if event.key == pygame.K_w:
-                print("Up")
+                # print("Up")
                 moving_up = False
             if event.key == pygame.K_s:
-                print("Down")
+                # print("Down")
                 moving_down = False
             
     #Update graphics

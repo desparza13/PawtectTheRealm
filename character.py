@@ -3,22 +3,24 @@ import pygame
 import constants as const
 
 class Character():
-    def __init__(self, x, y, mob_animation,char_type) -> None:
+    def __init__(self, x, y, health, mob_animation,char_type) -> None:
         self.char_type = char_type
-        #probar los mpvimientos con un rectangulo en lo que completamos los sprites
-        self.rect = pygame.Rect(0, 0, 40, 40)
-        #set character position
-        self.rect.center = (x, y)
+        self.flip = False
         
         #animation 
         self.animation_list = mob_animation[char_type]
         self.frame_index = 0
         self.action = 0 #0: idle, 1: run
         self.update_time = pygame.time.get_ticks() #How much time has passed since the last time we update the frame
-        self.image = self.animation_list[self.action][self.frame_index] 
-        self.running = True
+        self.running = False
         
-        self.flip = False
+        #set character position
+        self.image = self.animation_list[self.action][self.frame_index] 
+        self.rect = pygame.Rect(0, 0, 40, 40)
+        self.rect.center = (x, y)
+        
+        self.health = health
+        self.alive = True
 
         
     def move(self, dx, dy):
@@ -43,7 +45,10 @@ class Character():
         
     def update(self):
         '''Method for handle character animation '''
-        
+        #check if character has died
+        if self.health <= 0:
+            self.health =0
+            self.alive = False
         #check what action the player is performing
         if self.running == True:
             self.update_action(1) #1 : run
