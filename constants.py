@@ -26,3 +26,6 @@ PROJECTILE_SPEED = 10
 
 #Item size
 ITEM_SCALE = 3
+
+#Potion size
+POTION_SCALE = 2

@@ -2,6 +2,7 @@ import pygame
 import constants as const 
 from character import Character
 from damage_text import DamageText
+from items import Item
 from weapon import Weapon
 pygame.init()
 
@@ -34,6 +35,16 @@ heart_empty = scale_img(pygame.image.load("assets/items/heart_empty.png").conver
 heart_half = scale_img(pygame.image.load("assets/items/heart_half.png").convert_alpha(),const.ITEM_SCALE)
 heart_full = scale_img(pygame.image.load("assets/items/heart_full.png").convert_alpha(),const.ITEM_SCALE)
 
+#Load bone images
+bone_images = []
+for x in range(4):
+    image = pygame.image.load(f"assets/items/bone_f{x}.png").convert_alpha()
+    image = scale_img(image, const.ITEM_SCALE)
+    bone_images.append(image)
+
+#Load potion image
+red_potion = scale_img(pygame.image.load("assets/items/potion_red.png").convert_alpha(),const.POTION_SCALE)
+
 #Load weapon images
 weapon_image = scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(),const.WEAPON_SCALE)
 projectile_image = scale_img(pygame.image.load("assets/weapons/projectile.png").convert_alpha(),const.WEAPON_SCALE)
@@ -56,25 +67,32 @@ for mob in mob_types:
             temp_list.append(image)
         animation_list.append(temp_list)
     mob_animations.append(animation_list)
-    
+
+#Function for outputtong text onto the screen
+def draw_text(text, font, text_color, x, y):
+    img = font.render(text, True, text_color)
+    screen.blit(img,(x,y))
+   
 #Function for displaying game info
 def draw_info():
+    #Draw the rect of the panel
     pygame.draw.rect(screen, const.PANEL_INFO, (0,0,const.SCREEN_WIDTH,50))
-    pygame.draw.line(screen,const.WHITE,(0,50), (const.SCREEN_WIDTH,50))
+    pygame.draw.line(screen,const.WHITE,(0,50), (const.SCREEN_WIDTH,50)) #separate the panel info and the screen game
     #draw lives
     half_hear_drawn = False
     for i in range(5):
         if kebo.health >= ((i+1)*20): #One full heart = 20 health
-            screen.blit(heart_full, (10 + i * 50,0))
+            screen.blit(heart_full, (10 + i * 50,0)) 
         elif(kebo.health %20 > 0) and half_hear_drawn == False:
             screen.blit(heart_half, (10 + i * 50,0))
             half_hear_drawn = True
         else:
             screen.blit(heart_empty, (10 + i * 50,0))
-            
+    #show score
+    draw_text(f"X{kebo.score}",font, const.WHITE, const.SCREEN_WIDTH - 100, 15)
 
 #Create player
-kebo = Character(100, 100, 10, mob_animations,0)
+kebo = Character(100, 100, 70, mob_animations,0)
 
 #Create enemy
 enemy = Character(200, 300, 100, mob_animations,1)
@@ -89,6 +107,14 @@ enemy_list.append(enemy)
 #Create sprite groups
 damage_text_group = pygame.sprite.Group()
 projectile_group = pygame.sprite.Group()
+item_group = pygame.sprite.Group()
+
+score_bone = Item(const.SCREEN_WIDTH - 115, 23, 0, bone_images)
+item_group.add(score_bone)
+potion = Item(200, 200, 1, [red_potion])
+item_group.add(potion)
+bone = Item(400, 400, 0, bone_images)
+item_group.add(bone)
 
 
 #Main game loop
@@ -115,7 +141,7 @@ while run:
     #Move player
     kebo.move(dx, dy)
         
-    #Update 
+    #UPDATE 
     #   player
     kebo.update()
     
@@ -126,7 +152,7 @@ while run:
     
     for projectile in projectile_group:
         damage, damage_pos = projectile.update(enemy_list)
-        if damage:
+        if damage: 
             damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),const.RED, font)
             damage_text_group.add(damage_text)
         
@@ -135,8 +161,9 @@ while run:
         enemy.update()
     
     damage_text_group.update()
+    item_group.update(kebo)
     
-    #Draw 
+    #DRAW 
     #   player on the screen
     kebo.draw(screen)
     
@@ -154,7 +181,9 @@ while run:
         enemy.draw(screen)
     
     damage_text_group.draw(screen)
+    item_group.draw(screen)
     draw_info()
+    score_bone.draw(screen)
     
     #Event handler
     for event in pygame.event.get():

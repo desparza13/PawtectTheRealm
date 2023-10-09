@@ -6,7 +6,8 @@ class Character():
     def __init__(self, x, y, health, mob_animation,char_type) -> None:
         self.char_type = char_type
         self.flip = False
-        
+        self.score = 0
+
         #animation 
         self.animation_list = mob_animation[char_type]
         self.frame_index = 0
