@@ -17,9 +17,8 @@ class Character():
         
         #set character position
         self.image = self.animation_list[self.action][self.frame_index] 
-        self.rect = pygame.Rect(0, 0, 40, 40)
+        self.rect = pygame.Rect(0, 0, const.TILE_SIZE, 40)
         self.rect.center = (x, y)
-        
         self.health = health
         self.alive = True
 

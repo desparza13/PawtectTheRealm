@@ -4,6 +4,7 @@ from character import Character
 from damage_text import DamageText
 from items import Item
 from weapon import Weapon
+from world import World
 pygame.init()
 
 #Create game window
@@ -49,6 +50,13 @@ red_potion = scale_img(pygame.image.load("assets/items/potion_red.png").convert_
 weapon_image = scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(),const.WEAPON_SCALE)
 projectile_image = scale_img(pygame.image.load("assets/weapons/projectile.png").convert_alpha(),const.WEAPON_SCALE)
 
+#load tilemap images
+tile_list = []
+for x in range(const.TILE_TYPES):
+    tile_image = pygame.image.load(f"assets/tiles/{x}.png").convert_alpha()
+    tile_image = pygame.transform.scale(tile_image, (const.TILE_SIZE, const.TILE_SIZE))
+    tile_list.append(tile_image)
+
 #Load characters images
 animation_types = ["idle", "run"]
 mob_types = ["kebo","black_cat", "brown_cat","orange_cat", "budgie", "budgie2", "big_demon"]
@@ -90,6 +98,20 @@ def draw_info():
             screen.blit(heart_empty, (10 + i * 50,0))
     #show score
     draw_text(f"X{kebo.score}",font, const.WHITE, const.SCREEN_WIDTH - 100, 15)
+
+
+#List of lists for placing tiles
+world_data = [
+    [7, 7, 7, 7, 7, 7],
+    [7, 0, 1, 2, 3, 7],
+    [7, 3, 4, 5, 5, 7],
+    [7, 6, 6, 6, 6, 7],
+    [7, 0, 0, 0, 0, 7],
+    [7, 7, 7, 0, 7, 7]
+]
+
+world = World()
+world.process_data(world_data, tile_list)
 
 #Create player
 kebo = Character(100, 100, 70, mob_animations,0)
@@ -164,6 +186,9 @@ while run:
     item_group.update(kebo)
     
     #DRAW 
+    #  tiles on screen (world)
+    world.draw(screen)
+    
     #   player on the screen
     kebo.draw(screen)
     
@@ -179,6 +204,8 @@ while run:
     #   enemies on screen
     for enemy in enemy_list:
         enemy.draw(screen)
+
+
     
     damage_text_group.draw(screen)
     item_group.draw(screen)

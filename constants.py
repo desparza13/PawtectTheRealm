@@ -29,3 +29,9 @@ ITEM_SCALE = 3
 
 #Potion size
 POTION_SCALE = 2
+
+#Tile size
+TILE_SIZE = 16 * SCALE
+
+#Tile types
+TILE_TYPES = 18
