@@ -3,8 +3,9 @@ import pygame
 import constants as const
 
 class Character():
-    def __init__(self, x, y, health, mob_animation,char_type) -> None:
+    def __init__(self, x, y, health, mob_animation, char_type, boss, size):
         self.char_type = char_type
+        self.boss = boss
         self.flip = False
         self.score = 0
 
@@ -17,7 +18,7 @@ class Character():
         
         #set character position
         self.image = self.animation_list[self.action][self.frame_index] 
-        self.rect = pygame.Rect(0, 0, const.TILE_SIZE, 40)
+        self.rect = pygame.Rect(0, 0, const.TILE_SIZE * size, const.TILE_SIZE * size)
         self.rect.center = (x, y)
         self.health = health
         self.alive = True

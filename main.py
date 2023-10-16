@@ -17,7 +17,7 @@ pygame.display.set_caption("Pawtect the Realm")
 clock = pygame.time.Clock()
 
 #define game variables
-level = 1
+level = 3
 scree_scroll = [0, 0]
 
 #Define player movement variables
@@ -27,7 +27,7 @@ moving_up = False
 moving_down = False
 
 #Define font variables
-font = pygame.font.SysFont("timesnewroman",20)
+font = pygame.font.Font("font/Minecraftia-Regular.ttf", 20)
 #print(pygame.font.get_fonts())
 
 #helped function to scale image
@@ -51,6 +51,10 @@ for x in range(4):
 
 #Load potion image
 red_potion = scale_img(pygame.image.load("assets/items/potion_red.png").convert_alpha(),const.POTION_SCALE)
+
+item_images = []
+item_images.append(bone_images)
+item_images.append(red_potion)
 
 #Load weapon images
 weapon_image = scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(),const.WEAPON_SCALE)
@@ -87,7 +91,7 @@ def draw_text(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
     screen.blit(img,(x,y))
    
-#Function for displaying game info
+#Function for displaying game info (top bar)
 def draw_info():
     #Draw the rect of the panel
     pygame.draw.rect(screen, const.PANEL_INFO, (0,0,const.SCREEN_WIDTH,50))
@@ -102,8 +106,11 @@ def draw_info():
             half_hear_drawn = True
         else:
             screen.blit(heart_empty, (10 + i * 50,0))
+
+    #level
+    draw_text(f"LEVEL: {level}", font, const.WHITE, const.SCREEN_WIDTH/2, 15)
     #show score
-    draw_text(f"X{kebo.score}",font, const.WHITE, const.SCREEN_WIDTH - 100, 15)
+    draw_text(f" x {kebo.score}",font, const.WHITE, const.SCREEN_WIDTH - 100, 15)
 
 
 #create empty tile list
@@ -120,20 +127,16 @@ with open(f"levels/level{level}_data.csv", newline="") as csvfile:
 
 
 world = World()
-world.process_data(world_data, tile_list)
+world.process_data(world_data, tile_list, item_images, mob_animations)
 
-#Create player
-kebo = Character(400, 300, 70, mob_animations,0)
-
-#Create enemy
-enemy = Character(300, 280, 100, mob_animations,1)
+#Create player and enemies
+kebo = world.player
 
 #Create player's weapon
 weapon = Weapon(weapon_image, projectile_image)
 
-#Create empty enemy list 
-enemy_list = []
-enemy_list.append(enemy)
+#extrat enemies from world data
+enemy_list = world.character_list
 
 #Create sprite groups
 damage_text_group = pygame.sprite.Group()
@@ -142,10 +145,11 @@ item_group = pygame.sprite.Group()
 
 score_bone = Item(const.SCREEN_WIDTH - 115, 26, 0, bone_images, True)
 item_group.add(score_bone)
-potion = Item(400, 200, 1, [red_potion])
-item_group.add(potion)
-bone = Item(400, 550, 0, bone_images)
-item_group.add(bone)
+# add the items from the level data
+for item in world.item_list:
+    item_group.add(item)
+
+
 
 
 #Main game loop
