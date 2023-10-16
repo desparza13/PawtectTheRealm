@@ -24,6 +24,7 @@ class Character():
 
         
     def move(self, dx, dy):
+        screen_scroll = [0, 0]
         self.running = False
         
         if dx!= 0 or dy != 0:
@@ -42,6 +43,34 @@ class Character():
             
         self.rect.x += dx
         self.rect.y += dy
+
+        # logic only applicable to player
+        if self.char_type == 0:
+            #update scroll based on player position
+            #move camera left and right
+            if self.rect.right > (const.SCREEN_WIDTH - const.SCROLL_THRESH):
+                screen_scroll[0] = (const.SCREEN_WIDTH - const.SCROLL_THRESH) - self.rect.right
+                self.rect.right = (const.SCREEN_WIDTH - const.SCROLL_THRESH)
+            if self.rect.left < const.SCROLL_THRESH:
+                screen_scroll[0] = const.SCROLL_THRESH - self.rect.left
+                self.rect.left = const.SCROLL_THRESH
+
+            #move camera up and down
+            if self.rect.bottom > (const.SCREEN_HEIGHT - const.SCROLL_THRESH):
+                screen_scroll[1] = (const.SCREEN_HEIGHT - const.SCROLL_THRESH) - self.rect.bottom
+                self.rect.bottom = (const.SCREEN_HEIGHT - const.SCROLL_THRESH)
+            if self.rect.top < const.SCROLL_THRESH:
+                screen_scroll[1] = const.SCROLL_THRESH - self.rect.top
+                self.rect.top = const.SCROLL_THRESH # 'freeze' the player's position on the screen
+        
+        return screen_scroll
+    
+    def ai(self, screen_scroll):
+        #this will be the AI for enemy
+        #reposition the mobs based on screen scroll
+        self.rect.x += screen_scroll[0]
+        self.rect.y += screen_scroll[1]
+                
         
     def update(self):
         '''Method for handle character animation '''

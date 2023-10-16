@@ -1,7 +1,7 @@
 import pygame
 
 class Item(pygame.sprite.Sprite):
-    def __init__(self, x, y, item_type, animation_list, ):
+    def __init__(self, x, y, item_type, animation_list, dummy_bone = False):
         pygame.sprite.Sprite.__init__(self)
         self.item_type = item_type # 0: bone, 1: health potion
         self.animation_list = animation_list
@@ -10,8 +10,14 @@ class Item(pygame.sprite.Sprite):
         self.image = self.animation_list[self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
+        self.dummy_bone  = dummy_bone 
     
-    def update(self,player):
+    def update(self, screen_scroll, player):
+        #doesn't apply to the dummy_bone
+        if not self.dummy_bone:
+            #reposition based on screen scroll
+            self.rect.x += screen_scroll[0]
+            self.rect.y += screen_scroll[1]
         #check to see if item has been collected by the player
         if self.rect.colliderect(player.rect):
             #bone collected

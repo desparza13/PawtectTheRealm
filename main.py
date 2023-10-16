@@ -1,10 +1,12 @@
 import pygame
+import csv
 import constants as const 
 from character import Character
 from damage_text import DamageText
 from items import Item
 from weapon import Weapon
 from world import World
+
 pygame.init()
 
 #Create game window
@@ -13,6 +15,10 @@ pygame.display.set_caption("Pawtect the Realm")
 
 #Create clock for mantaining frame rate
 clock = pygame.time.Clock()
+
+#define game variables
+level = 1
+scree_scroll = [0, 0]
 
 #Define player movement variables
 moving_left = False
@@ -100,24 +106,27 @@ def draw_info():
     draw_text(f"X{kebo.score}",font, const.WHITE, const.SCREEN_WIDTH - 100, 15)
 
 
-#List of lists for placing tiles
-world_data = [
-    [7, 7, 7, 7, 7, 7],
-    [7, 0, 1, 2, 3, 7],
-    [7, 3, 4, 5, 5, 7],
-    [7, 6, 6, 6, 6, 7],
-    [7, 0, 0, 0, 0, 7],
-    [7, 7, 7, 0, 7, 7]
-]
+#create empty tile list
+world_data = []
+for row in range(const.ROWS):
+    r = [-1] * const.COLS
+    world_data.append(r)
+#load in level data and create world
+with open(f"levels/level{level}_data.csv", newline="") as csvfile:
+    reader = csv.reader(csvfile, delimiter = ",")
+    for x, row in enumerate(reader):
+        for y, tile in enumerate(row):
+            world_data[x][y] = int(tile)
+
 
 world = World()
 world.process_data(world_data, tile_list)
 
 #Create player
-kebo = Character(100, 100, 70, mob_animations,0)
+kebo = Character(400, 300, 70, mob_animations,0)
 
 #Create enemy
-enemy = Character(200, 300, 100, mob_animations,1)
+enemy = Character(300, 280, 100, mob_animations,1)
 
 #Create player's weapon
 weapon = Weapon(weapon_image, projectile_image)
@@ -131,11 +140,11 @@ damage_text_group = pygame.sprite.Group()
 projectile_group = pygame.sprite.Group()
 item_group = pygame.sprite.Group()
 
-score_bone = Item(const.SCREEN_WIDTH - 115, 23, 0, bone_images)
+score_bone = Item(const.SCREEN_WIDTH - 115, 26, 0, bone_images, True)
 item_group.add(score_bone)
-potion = Item(200, 200, 1, [red_potion])
+potion = Item(400, 200, 1, [red_potion])
 item_group.add(potion)
-bone = Item(400, 400, 0, bone_images)
+bone = Item(400, 550, 0, bone_images)
 item_group.add(bone)
 
 
@@ -161,7 +170,7 @@ while run:
         dy -= const.SPEED
     
     #Move player
-    kebo.move(dx, dy)
+    screen_scroll = kebo.move(dx, dy)
         
     #UPDATE 
     #   player
@@ -173,18 +182,20 @@ while run:
         projectile_group.add(projectile)
     
     for projectile in projectile_group:
-        damage, damage_pos = projectile.update(enemy_list)
+        damage, damage_pos = projectile.update(screen_scroll, enemy_list)
         if damage: 
             damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),const.RED, font)
             damage_text_group.add(damage_text)
         
-    #   enemies
+    #  Update other objects in the world
     for enemy in enemy_list:
+        enemy.ai(screen_scroll)
         enemy.update()
     
-    damage_text_group.update()
-    item_group.update(kebo)
-    
+    damage_text_group.update(screen_scroll)
+    item_group.update(screen_scroll, kebo)
+
+    world.update(screen_scroll)    
     #DRAW 
     #  tiles on screen (world)
     world.draw(screen)
