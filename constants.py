@@ -15,8 +15,13 @@ WHITE = (255,255,255)
 SCALE = 3
 OFFSET = 12
 
-#Player movement
+#Character movement
 SPEED = 5
+ENEMY_SPEED = 3.5
+
+# Enemy range to player
+RANGE = 50
+ATTACK_RANGE = 60
 
 #Weapon size
 WEAPON_SCALE = 1.5

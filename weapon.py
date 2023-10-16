@@ -54,7 +54,7 @@ class Projectile(pygame.sprite.Sprite):
         self.dx = math.cos(math.radians(self.angle)) * const.PROJECTILE_SPEED
         self.dy = -(math.sin(math.radians(self.angle)) * const.PROJECTILE_SPEED) #negative because pygame y coordinate increases down the screen
     
-    def update(self, screen_scroll, enemy_list):
+    def update(self, screen_scroll, obstacle_tiles, enemy_list):
         #reset variables
         damage = 0
         damage_pos = None
@@ -62,6 +62,12 @@ class Projectile(pygame.sprite.Sprite):
         #reposition based on speed and on the screen_scroll of the player
         self.rect.x += screen_scroll[0] + self.dx
         self.rect.y += screen_scroll[1] + self.dy
+
+        # check collision with walls
+        for obstacle in obstacle_tiles:
+            if obstacle[1].colliderect(self.rect):
+                self.kill()
+
         
         #check if arrow has gone off screen
         if self.rect.right < 0 or self.rect.left > const.SCREEN_WIDTH or self.rect.bottom < 0 or self.rect.top > const.SCREEN_HEIGHT:
@@ -73,6 +79,7 @@ class Projectile(pygame.sprite.Sprite):
                 damage = 10 + random.randint(-5,5) #damage between 5-15
                 damage_pos = enemy.rect
                 enemy.health -= damage
+                enemy.hit = True
                 self.kill() #kill the projectile
                 break
             

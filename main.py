@@ -17,7 +17,7 @@ pygame.display.set_caption("Pawtect the Realm")
 clock = pygame.time.Clock()
 
 #define game variables
-level = 3
+level = 2
 scree_scroll = [0, 0]
 
 #Define player movement variables
@@ -186,14 +186,14 @@ while run:
         projectile_group.add(projectile)
     
     for projectile in projectile_group:
-        damage, damage_pos = projectile.update(screen_scroll, enemy_list)
+        damage, damage_pos = projectile.update(screen_scroll, world.obstacle_tiles, enemy_list)
         if damage: 
             damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),const.RED, font)
             damage_text_group.add(damage_text)
         
     #  Update other objects in the world
     for enemy in enemy_list:
-        enemy.ai(screen_scroll)
+        enemy.ai(kebo, world.obstacle_tiles, screen_scroll)
         enemy.update()
     
     damage_text_group.update(screen_scroll)
