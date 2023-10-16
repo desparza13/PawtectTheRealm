@@ -8,7 +8,6 @@ class Character():
         self.boss = boss
         self.flip = False
         self.score = 0
-
         #animation 
         self.animation_list = mob_animation[char_type]
         self.frame_index = 0
@@ -24,7 +23,7 @@ class Character():
         self.alive = True
 
         
-    def move(self, dx, dy):
+    def move(self, dx, dy, obstacle_tiles):
         screen_scroll = [0, 0]
         self.running = False
         
@@ -41,9 +40,28 @@ class Character():
         if dx!= 0 and dy!=0:
             dx = dx * (math.sqrt(2)/2)
             dy = dy * (math.sqrt(2)/2)
-            
-        self.rect.x += dx
-        self.rect.y += dy
+        
+        #check collision with obstacles
+        #first we move the character
+        self.rect.x += dx 
+        for obstacle in obstacle_tiles:
+            #check collision in the x direction
+            if obstacle[1].colliderect(self.rect):
+                if dx > 0:
+                    self.rect.right = obstacle[1].left
+                elif dx < 0:
+                    self.rect.left = obstacle[1].right
+        #check collision in the y direction
+        self.rect.y += dy 
+        for obstacle in obstacle_tiles:
+            #check collision in the x direction
+            if obstacle[1].colliderect(self.rect):
+                if dy > 0:
+                    self.rect.bottom = obstacle[1].top
+                elif dy < 0:
+                    self.rect.top = obstacle[1].bottom
+        
+        
 
         # logic only applicable to player
         if self.char_type == 0:

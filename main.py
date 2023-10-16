@@ -174,7 +174,7 @@ while run:
         dy -= const.SPEED
     
     #Move player
-    screen_scroll = kebo.move(dx, dy)
+    screen_scroll = kebo.move(dx, dy, world.obstacle_tiles)
         
     #UPDATE 
     #   player

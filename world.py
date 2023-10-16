@@ -24,7 +24,7 @@ class World():
                 image_rect.center = (image_x, image_y)
                 tile_data = [image, image_rect, image_x, image_y]
 
-                # CLASSIFYING TILES BASED ON THEIR VALUES
+                # CREATING ITEMS/CHARACTERS ON SPECIFIC TILES 
                 if tile == 7:
                     self.obstacle_tiles.append(tile_data) #used for collision
                 elif tile == 8:
@@ -42,7 +42,7 @@ class World():
                     player = Character(image_x, image_y, 100, mob_animations, 0, False, 1)
                     self.player = player
                     tile_data[0] = tile_list[0]
-                elif tile >= 12 and tile <= 17:
+                elif tile >= 12 and tile <= 16:
                     enemy = Character(image_x, image_y, 100, mob_animations, tile - 11, False, 1)
                     self.character_list.append(enemy)
                     tile_data[0] = tile_list[0]
