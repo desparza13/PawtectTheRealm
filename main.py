@@ -6,6 +6,7 @@ from damage_text import DamageText
 from items import Item
 from weapon import Weapon
 from world import World
+from screenfrade import ScreenFade
 
 pygame.init()
 
@@ -17,7 +18,8 @@ pygame.display.set_caption("Pawtect the Realm")
 clock = pygame.time.Clock()
 
 #define game variables
-level = 2
+level = 1
+start_intro = True
 scree_scroll = [0, 0]
 
 #Define player movement variables
@@ -57,8 +59,9 @@ item_images.append(bone_images)
 item_images.append(red_potion)
 
 #Load weapon images
-weapon_image = scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(),const.WEAPON_SCALE)
-projectile_image = scale_img(pygame.image.load("assets/weapons/projectile.png").convert_alpha(),const.WEAPON_SCALE)
+weapon_image = scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(), const.WEAPON_SCALE)
+projectile_image = scale_img(pygame.image.load("assets/weapons/projectile.png").convert_alpha(), const.WEAPON_SCALE)
+ballattack_image = scale_img(pygame.image.load("assets/weapons/ballattack.png").convert_alpha(), const.BALLATTACK_SCALE)
 
 #load tilemap images
 tile_list = []
@@ -112,6 +115,20 @@ def draw_info():
     #show score
     draw_text(f" x {kebo.score}",font, const.WHITE, const.SCREEN_WIDTH - 100, 15)
 
+#Function to reset levels
+def reset_level() -> list:
+    damage_text_group.empty()
+    projectile_group.empty()
+    item_group.empty()
+    ballattack_group.empty()
+    
+    #create empty tile list
+    w_data = []
+    for row in range(const.ROWS):
+        r = [-1] * const.COLS
+        w_data.append(r)
+    
+    return w_data
 
 #create empty tile list
 world_data = []
@@ -142,6 +159,7 @@ enemy_list = world.character_list
 damage_text_group = pygame.sprite.Group()
 projectile_group = pygame.sprite.Group()
 item_group = pygame.sprite.Group()
+ballattack_group = pygame.sprite.Group()
 
 score_bone = Item(const.SCREEN_WIDTH - 115, 26, 0, bone_images, True)
 item_group.add(score_bone)
@@ -150,7 +168,8 @@ for item in world.item_list:
     item_group.add(item)
 
 
-
+# Create screen fade animation
+intro_fade = ScreenFade(screen, 1, const.BLACK, 4)
 
 #Main game loop
 run = True
@@ -174,7 +193,7 @@ while run:
         dy -= const.SPEED
     
     #Move player
-    screen_scroll = kebo.move(dx, dy, world.obstacle_tiles)
+    screen_scroll, level_complete = kebo.move(dx, dy, world.obstacle_tiles, world.exit_tile)
         
     #UPDATE 
     #   player
@@ -193,20 +212,22 @@ while run:
         
     #  Update other objects in the world
     for enemy in enemy_list:
-        enemy.ai(kebo, world.obstacle_tiles, screen_scroll)
-        enemy.update()
+        ballattack = enemy.ai(kebo, world.obstacle_tiles, screen_scroll, ballattack_image)
+        if ballattack: 
+            ballattack_group.add(ballattack)
+        if enemy.alive:
+            # TODO: add an animation or indicator that the enemy's dead besides stopping its movement
+            enemy.update()
     
     damage_text_group.update(screen_scroll)
     item_group.update(screen_scroll, kebo)
-
+    ballattack_group.update(screen_scroll, kebo)
     world.update(screen_scroll)    
     #DRAW 
     #  tiles on screen (world)
     world.draw(screen)
-    
     #   player on the screen
     kebo.draw(screen)
-    
     #   Weapon on the screen
     weapon.draw(screen)
     
@@ -214,18 +235,49 @@ while run:
     for projectile in projectile_group:
         projectile.draw(screen)
     
-    projectile_group.draw(screen)
+    #projectile_group.draw(screen)
+
+    #  ballattacks on the screen
+    for ballattack in ballattack_group:
+        ballattack.draw(screen)
+    
 
     #   enemies on screen
     for enemy in enemy_list:
         enemy.draw(screen)
 
-
-    
     damage_text_group.draw(screen)
     item_group.draw(screen)
     draw_info()
     score_bone.draw(screen)
+
+    #Check if level is complete
+    if level_complete:
+        start_intro = True
+        level += 1
+        world_data = reset_level()
+        with open(f"levels/level{level}_data.csv", newline="") as csvfile:
+            reader = csv.reader(csvfile, delimiter = ",")
+            for x, row in enumerate(reader):
+                for y, tile in enumerate(row):
+                    world_data[x][y] = int(tile)
+        world = World()
+        world.process_data(world_data, tile_list, item_images, mob_animations)
+        temporary_health = kebo.health
+        temporary_score = kebo.score
+        kebo = world.player
+        kebo.health = temporary_health
+        kebo.score = temporary_score
+        enemy_list = world.character_list
+        score_bone = Item(const.SCREEN_WIDTH - 115, 26, 0, bone_images, True)
+        item_group.add(score_bone)
+        for item in world.item_list:
+            item_group.add(item)
+
+    if start_intro:
+        if intro_fade.fade():
+            start_intro = False
+            intro_fade.fade_counter = 0
     
     #Event handler
     for event in pygame.event.get():

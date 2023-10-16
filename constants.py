@@ -10,17 +10,18 @@ RED = (255,0,0)
 BG = (40, 25,25)
 PANEL_INFO = (50,50,50)
 WHITE = (255,255,255)
+BLACK = (0,0,0)
 
 #Player size
 SCALE = 3
 OFFSET = 12
 
 #Character movement
-SPEED = 5
+SPEED = 5 #player
 ENEMY_SPEED = 3.5
 
 # Enemy range to player
-RANGE = 50
+RANGE = 50 #player
 ATTACK_RANGE = 60
 
 #Weapon size
@@ -34,6 +35,10 @@ ITEM_SCALE = 3
 
 #Potion size
 POTION_SCALE = 2
+
+# BallAttack size and speed
+BALLATTACK_SCALE = 1
+BALLATTACK_SPEED = 4
 
 #Tiles
 TILE_SIZE = 16 * SCALE

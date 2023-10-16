@@ -1,6 +1,6 @@
 import math
 import pygame
-import time
+import weapon
 import constants as const
 
 class Character():
@@ -27,10 +27,12 @@ class Character():
         self.hit = False
         self.last_hit = pygame.time.get_ticks()
         self.stunned = False
+        self.last_attack = pygame.time.get_ticks()
 
         
-    def move(self, dx, dy, obstacle_tiles):
+    def move(self, dx, dy, obstacle_tiles, exit_tile = None):
         screen_scroll = [0, 0]
+        level_complete = False
         self.running = False
         
         if dx!= 0 or dy != 0:
@@ -67,8 +69,6 @@ class Character():
                 elif dy < 0:
                     self.rect.top = obstacle[1].bottom
         
-        
-
         # logic only applicable to player
         if self.char_type == 0:
             #update scroll based on player position
@@ -87,12 +87,21 @@ class Character():
             if self.rect.top < const.SCROLL_THRESH:
                 screen_scroll[1] = const.SCROLL_THRESH - self.rect.top
                 self.rect.top = const.SCROLL_THRESH # 'freeze' the player's position on the screen
-        
-        return screen_scroll
+            
+            #check if the player has reached the exit tile
+            if exit_tile[1].colliderect(self.rect):
+                # ensure player's close to the exit ladder
+                exit_dist = math.sqrt(((self.rect.centerx - exit_tile[1].centerx) ** 2) + ((self.rect.centery - exit_tile[1].centery) ** 2))
+                if exit_dist < 20:
+                    level_complete = True
+                    
+                
+        return screen_scroll, level_complete
     
-    def ai(self, player, obstacle_tiles, screen_scroll):
+    def ai(self, player, obstacle_tiles, screen_scroll, ballattack_image):
         clipped_line = ()
         stun_cooldown = 0
+        ballattack = None
         ai_dx = 0
         ai_dy = 0
         #reposition the mobs based on screen scroll
@@ -122,8 +131,17 @@ class Character():
         
         if self.alive: 
             if not self.stunned:
+                #move towards the player
                 self.move(ai_dx, ai_dy, obstacle_tiles)
+                #attack the player
                 self.attack_the_player(dist, player)
+                #boss enemies shoot ballattacks
+                ballattack_cooldown = 700
+                if self.boss:
+                    if dist < 500:
+                        if pygame.time.get_ticks() - self.last_attack >= ballattack_cooldown:
+                            ballattack = weapon.BallAttack(ballattack_image, self.rect.centerx, self.rect.centery, player.rect.centerx, player.rect.centery)
+                            self.last_attack = pygame.time.get_ticks()
 
             if self.hit:
                 self.hit = False
@@ -134,6 +152,9 @@ class Character():
                 
             if (pygame.time.get_ticks() - self.last_hit) > stun_cooldown:
                 self.stunned = False
+        
+        return ballattack
+
 
     def attack_the_player(self, dist, player):
         #check if the enemy is attacking the player
@@ -179,7 +200,6 @@ class Character():
             self.frame_index = 0 #reset frame index
     
     def update_action(self,action):
-        
         #check if the new action is different to the previous one
         if action != self.action:
             self.action = action
@@ -197,5 +217,5 @@ class Character():
         else:
             surface.blit(flipped_image, self.rect) #draw the image
 
-        pygame.draw.rect(surface, const.RED, self.rect, 1) #empty rectangle with the image
+        #pygame.draw.rect(surface, const.RED, self.rect, 1) #empty rectangle with the image
         

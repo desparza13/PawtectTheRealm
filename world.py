@@ -47,7 +47,7 @@ class World():
                     self.character_list.append(enemy)
                     tile_data[0] = tile_list[0]
                 elif tile == 17:
-                    enemy = Character(image_x, image_y, 100, mob_animations, 6, True, 2)
+                    enemy = Character(image_x, image_y, 150, mob_animations, 6, True, 2)
                     self.character_list.append(enemy)
                     tile_data[0] = tile_list[0]
 
