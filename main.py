@@ -6,7 +6,7 @@ from damage_text import DamageText
 from items import Item
 from weapon import Weapon
 from world import World
-from screenfrade import ScreenFade
+from screenfade import ScreenFade
 
 pygame.init()
 
