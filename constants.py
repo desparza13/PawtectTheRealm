@@ -8,9 +8,11 @@ SCREEN_HEIGHT = 600
 #Colors
 RED = (255,0,0)
 BG = (40, 25,25)
+MENU_BG = (130,0,0)
 PANEL_INFO = (50,50,50)
 WHITE = (255,255,255)
 BLACK = (0,0,0)
+PINK = (235,65,54)
 
 #Player size
 SCALE = 3
@@ -35,6 +37,9 @@ ITEM_SCALE = 3
 
 #Potion size
 POTION_SCALE = 2
+
+#Button size
+BUTTON_SCALE = 1
 
 # BallAttack size and speed
 BALLATTACK_SCALE = 1

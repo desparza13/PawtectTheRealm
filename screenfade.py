@@ -17,6 +17,8 @@ class ScreenFade():
             pygame.draw.rect(self.screen, self.color, (const.SCREEN_WIDTH//2 + self.fade_counter, 0, const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
             pygame.draw.rect(self.screen, self.color, (0, 0 - self.fade_counter, const.SCREEN_WIDTH, const.SCREEN_HEIGHT//2))
             pygame.draw.rect(self.screen, self.color, (0, const.SCREEN_HEIGHT//2 + self.fade_counter, const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
+        elif self.direction== 2: #vertical screen fade down
+            pygame.draw.rect(self.screen, self.color, (0, 0, const.SCREEN_WIDTH,0 + self.fade_counter))
         if self.fade_counter >= const.SCREEN_WIDTH:
             fade_complete = True
 
