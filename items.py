@@ -12,7 +12,7 @@ class Item(pygame.sprite.Sprite):
         self.rect.center = (x,y)
         self.dummy_bone  = dummy_bone 
     
-    def update(self, screen_scroll, player):
+    def update(self, screen_scroll, player, bone_sound, heal_sound):
         #doesn't apply to the dummy_bone
         if not self.dummy_bone:
             #reposition based on screen scroll
@@ -23,8 +23,10 @@ class Item(pygame.sprite.Sprite):
             #bone collected
             if self.item_type == 0 : # 0: Bone
                 player.score += 1
+                bone_sound.play()
             elif self.item_type == 1: # 1: Potion
                 player.health += 10
+                heal_sound.play()
                 if player.health > 100:
                     player.health = 100 #maximum health of the player
                     

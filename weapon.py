@@ -69,14 +69,14 @@ class Projectile(pygame.sprite.Sprite):
                 self.kill()
 
         
-        #check if arrow has gone off screen
+        #check if projectile has gone off screen
         if self.rect.right < 0 or self.rect.left > const.SCREEN_WIDTH or self.rect.bottom < 0 or self.rect.top > const.SCREEN_HEIGHT:
             self.kill() #kill the projectile
             
         #check collision between projectile and enemies
         for enemy in enemy_list:
             if enemy.rect.colliderect(self.rect) and enemy.alive: #if two rectangles are overlapping
-                damage = 10 + random.randint(-5,5) #damage between 5-15
+                damage = 10 + random.randint(0,5) #damage between 10-15
                 damage_pos = enemy.rect
                 enemy.health -= damage
                 enemy.hit = True

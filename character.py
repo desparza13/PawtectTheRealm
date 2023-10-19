@@ -62,7 +62,7 @@ class Character():
         #check collision in the y direction
         self.rect.y += dy 
         for obstacle in obstacle_tiles:
-            #check collision in the x direction
+            #check collision in the y direction
             if obstacle[1].colliderect(self.rect):
                 if dy > 0:
                     self.rect.bottom = obstacle[1].top
@@ -153,6 +153,7 @@ class Character():
             if (pygame.time.get_ticks() - self.last_hit) > stun_cooldown:
                 self.stunned = False
         
+            
         return ballattack
 
 
@@ -170,6 +171,7 @@ class Character():
         if self.health <= 0:
             self.health =0
             self.alive = False
+            
 
         # timer to reset player taking the hit (1 hit per second)
         hit_cooldown = 1000

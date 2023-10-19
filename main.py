@@ -1,4 +1,5 @@
 import pygame
+from pygame import mixer
 import csv
 import constants as const 
 from character import Character
@@ -9,6 +10,7 @@ from world import World
 from screenfade import ScreenFade
 from button import Button
 
+mixer.init()
 pygame.init()
 
 #Create game window
@@ -24,6 +26,7 @@ start_game = False
 pause_game = False
 start_intro = False
 scree_scroll = [0, 0]
+game_over = False
 
 #Define player movement variables
 moving_left = False
@@ -41,6 +44,27 @@ def scale_img(image, scale):
     height = image.get_height()
     new_image = pygame.transform.scale(image, (width * scale, height * scale))
     return new_image
+
+#load music and sounds
+pygame.mixer.music.load("assets/audio/music.wav")
+pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.play(-1,0.0,5000)
+
+shot_sound = pygame.mixer.Sound("assets/audio/projectile_shot.mp3")
+shot_sound.set_volume(0.5)
+hit_sound = pygame.mixer.Sound("assets/audio/projectile_hit.wav")
+hit_sound.set_volume(0.5)
+bone_sound = pygame.mixer.Sound("assets/audio/bone.mp3")
+bone_sound.set_volume(0.5)
+heal_sound = pygame.mixer.Sound("assets/audio/heal.wav")
+heal_sound.set_volume(0.5)
+game_over_sound = pygame.mixer.Sound("assets/audio/game_over.mp3")
+game_over_sound.set_volume(0.4)
+level_up_sound = pygame.mixer.Sound("assets/audio/level_up.mp3")
+level_up_sound.set_volume(0.5)
+
+pause_sound =pygame.mixer.Sound("assets/audio/pause.mp3")
+pause_sound.set_volume(0.5)
 
 #load button images
 restart_image = scale_img(pygame.image.load("assets/buttons/button_restart.png").convert_alpha(),const.BUTTON_SCALE)
@@ -179,7 +203,7 @@ for item in world.item_list:
 
 # Create screen fade animation
 intro_fade = ScreenFade(screen, 1, const.BLACK, 4)
-death_fade = ScreenFade(screen, 2, const.PINK, 4)
+death_fade = ScreenFade(screen, 2, const.PINK, 6)
 
 #create button
 restart_button = Button(const.SCREEN_WIDTH //2 -175, const.SCREEN_HEIGHT // 2 - 50, restart_image)
@@ -203,6 +227,9 @@ while run:
             run = False
     else:
         if pause_game == True:
+            pygame.mixer.music.set_volume(0)
+
+            pause_sound.play()
             screen.fill(const.MENU_BG)
             if resume_button.draw(screen):
                 pause_game = False
@@ -213,7 +240,9 @@ while run:
             screen.fill(const.BG)
             
             if kebo.alive:
-                
+                pause_sound.stop()
+                pygame.mixer.music.set_volume(0.3)
+
                 #Calculate player movement
                 dx = 0
                 dy = 0
@@ -229,24 +258,28 @@ while run:
                 #Move player
                 screen_scroll, level_complete = kebo.move(dx, dy, world.obstacle_tiles, world.exit_tile)
                 
-                #UPDATE 
+                #UPDATE
                 #   player
                 kebo.update()
-                
+                if kebo.alive == False:
+                    game_over_sound.play()
                 #   projectile
                 projectile = weapon.update(kebo)
                 if projectile:
                     projectile_group.add(projectile)
-                
+                    shot_sound.play()
                 for projectile in projectile_group:
                     damage, damage_pos = projectile.update(screen_scroll, world.obstacle_tiles, enemy_list)
                     if damage: 
                         damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),const.RED, font)
                         damage_text_group.add(damage_text)
+                        hit_sound.play()
                     
                 #  Update other objects in the world
                 for enemy in enemy_list:
                     ballattack = enemy.ai(kebo, world.obstacle_tiles, screen_scroll, ballattack_image)
+                    # if kebo.hit:
+                    #     hurt_sound.play()
                     if ballattack: 
                         ballattack_group.add(ballattack)
                     if enemy.alive:
@@ -254,7 +287,7 @@ while run:
                         enemy.update()
                 
                 damage_text_group.update(screen_scroll)
-                item_group.update(screen_scroll, kebo)
+                item_group.update(screen_scroll, kebo, bone_sound, heal_sound)
                 ballattack_group.update(screen_scroll, kebo)
                 world.update(screen_scroll)   
                 
@@ -278,7 +311,8 @@ while run:
             
             #   enemies on screen
             for enemy in enemy_list:
-                enemy.draw(screen)
+                if enemy.alive:
+                    enemy.draw(screen)
 
             damage_text_group.draw(screen)
             item_group.draw(screen)
@@ -287,6 +321,7 @@ while run:
 
             #Check if level is complete
             if level_complete:
+                level_up_sound.play()
                 start_intro = True
                 level += 1
                 world_data = reset_level()
@@ -317,7 +352,10 @@ while run:
                     
             #Show death screen
             if kebo.alive == False: 
+                
+                             
                 if death_fade.fade():
+                    
                     if restart_button.draw(screen):
                         death_fade.fade_counter = 0
                         start_intro = True
