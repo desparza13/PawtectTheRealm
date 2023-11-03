@@ -17,7 +17,7 @@ class Weapon():
         shot_cooldown = 300 #speed of the fired
         projectile = None
         
-        self.rect.center = player.rect.center
+        self.rect.center = player.animation.rect.center
         
         pos = pygame.mouse.get_pos()
         x_dist = pos[0] - self.rect.centerx
@@ -75,11 +75,11 @@ class Projectile(pygame.sprite.Sprite):
             
         #check collision between projectile and enemies
         for enemy in enemy_list:
-            if enemy.rect.colliderect(self.rect) and enemy.alive: #if two rectangles are overlapping
+            if enemy.animation.rect.colliderect(self.rect) and enemy.animation.stats.alive: #if two rectangles are overlapping
                 damage = 10 + random.randint(0,5) #damage between 10-15
-                damage_pos = enemy.rect
-                enemy.health -= damage
-                enemy.hit = True
+                damage_pos = enemy.animation.rect
+                enemy.animation.stats.health -= damage
+                enemy.animation.stats.hit = True
                 self.kill() #kill the projectile
                 break
             
@@ -116,10 +116,10 @@ class BallAttack(pygame.sprite.Sprite):
             self.kill() 
 
         #check collision between ballattack and player
-        if player.rect.colliderect(self.rect) and player.alive and player.hit == False:
-            player.hit = True
-            player.last_hit = pygame.time.get_ticks()
-            player.health -= 10
+        if player.animation.rect.colliderect(self.rect) and player.animation.stats.alive and player.animation.stats.hit == False:
+            player.animation.stats.hit = True
+            player.animation.stats.last_hit = pygame.time.get_ticks()
+            player.animation.stats.health -= 10
             self.kill()
 
 

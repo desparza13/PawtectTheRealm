@@ -21,7 +21,7 @@ pygame.display.set_caption("Pawtect the Realm")
 clock = pygame.time.Clock()
 
 #define game variables
-level = 1
+level = 3
 start_game = False
 pause_game = False
 start_intro = False
@@ -135,9 +135,9 @@ def draw_info():
     #draw lives
     half_hear_drawn = False
     for i in range(5):
-        if kebo.health >= ((i+1)*20): #One full heart = 20 health
+        if kebo.animation.stats.health >= ((i+1)*20): #One full heart = 20 health
             screen.blit(heart_full, (10 + i * 50,0)) 
-        elif(kebo.health %20 > 0) and half_hear_drawn == False:
+        elif(kebo.animation.stats.health %20 > 0) and half_hear_drawn == False:
             screen.blit(heart_half, (10 + i * 50,0))
             half_hear_drawn = True
         else:
@@ -239,7 +239,7 @@ while run:
             #Repaint background
             screen.fill(const.BG)
             
-            if kebo.alive:
+            if kebo.animation.stats.alive:
                 pause_sound.stop()
                 pygame.mixer.music.set_volume(0.3)
 
@@ -260,8 +260,8 @@ while run:
                 
                 #UPDATE
                 #   player
-                kebo.update()
-                if kebo.alive == False:
+                kebo.animation.update()
+                if kebo.animation.stats.alive == False:
                     game_over_sound.play()
                 #   projectile
                 projectile = weapon.update(kebo)
@@ -282,9 +282,9 @@ while run:
                     #     hurt_sound.play()
                     if ballattack: 
                         ballattack_group.add(ballattack)
-                    if enemy.alive:
+                    if enemy.animation.stats.alive:
                         # TODO: add an animation or indicator that the enemy's dead besides stopping its movement
-                        enemy.update()
+                        enemy.animation.update()
                 
                 damage_text_group.update(screen_scroll)
                 item_group.update(screen_scroll, kebo, bone_sound, heal_sound)
@@ -295,7 +295,7 @@ while run:
             #  tiles on screen (world)
             world.draw(screen)
             #   player on the screen
-            kebo.draw(screen)
+            kebo.animation.draw(screen)
             #   Weapon on the screen
             weapon.draw(screen)
             
@@ -311,8 +311,8 @@ while run:
             
             #   enemies on screen
             for enemy in enemy_list:
-                if enemy.alive:
-                    enemy.draw(screen)
+                if enemy.animation.stats.alive:
+                    enemy.animation.draw(screen)
 
             damage_text_group.draw(screen)
             item_group.draw(screen)
@@ -333,7 +333,7 @@ while run:
                             world_data[x][y] = int(tile)
                 world = World()
                 world.process_data(world_data, tile_list, item_images, mob_animations)
-                temporary_health = kebo.health
+                temporary_health = kebo.animation.stats.health
                 temporary_score = kebo.score
                 kebo = world.player
                 kebo.health = temporary_health
@@ -351,9 +351,7 @@ while run:
                     intro_fade.fade_counter = 0
                     
             #Show death screen
-            if kebo.alive == False: 
-                
-                             
+            if kebo.animation.stats.alive == False: 
                 if death_fade.fade():
                     
                     if restart_button.draw(screen):

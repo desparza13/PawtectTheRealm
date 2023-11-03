@@ -19,16 +19,16 @@ class Item(pygame.sprite.Sprite):
             self.rect.x += screen_scroll[0]
             self.rect.y += screen_scroll[1]
         #check to see if item has been collected by the player
-        if self.rect.colliderect(player.rect):
+        if self.rect.colliderect(player.animation.rect):
             #bone collected
             if self.item_type == 0 : # 0: Bone
                 player.score += 1
                 bone_sound.play()
             elif self.item_type == 1: # 1: Potion
-                player.health += 10
+                player.animation.stats.health += 10
                 heal_sound.play()
-                if player.health > 100:
-                    player.health = 100 #maximum health of the player
+                if player.animation.stats.health > 100:
+                    player.animation.stats.health = 100 #maximum health of the player
                     
             self.kill() #kill the bone item
                 
