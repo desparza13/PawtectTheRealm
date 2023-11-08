@@ -9,6 +9,7 @@ from weapon import Weapon
 from world import World
 from screenfade import ScreenFade
 from button import Button
+from boss import Boss
 
 mixer.init()
 pygame.init()
@@ -21,7 +22,7 @@ pygame.display.set_caption("Pawtect the Realm")
 clock = pygame.time.Clock()
 
 #define game variables
-level = 3
+level = 1
 start_game = False
 pause_game = False
 start_intro = False
@@ -277,11 +278,15 @@ while run:
                     
                 #  Update other objects in the world
                 for enemy in enemy_list:
-                    ballattack = enemy.ai(kebo, world.obstacle_tiles, screen_scroll, ballattack_image)
+                    if isinstance(enemy,Boss):
+                        ballattack = enemy.ai(kebo, world.obstacle_tiles, screen_scroll, ballattack_image)
+                        if ballattack: 
+                            ballattack_group.add(ballattack)
+                    else:
+                        enemy.ai(kebo, world.obstacle_tiles, screen_scroll)
                     # if kebo.hit:
                     #     hurt_sound.play()
-                    if ballattack: 
-                        ballattack_group.add(ballattack)
+                    
                     if enemy.animation.stats.alive:
                         # TODO: add an animation or indicator that the enemy's dead besides stopping its movement
                         enemy.animation.update()
@@ -336,7 +341,7 @@ while run:
                 temporary_health = kebo.animation.stats.health
                 temporary_score = kebo.score
                 kebo = world.player
-                kebo.health = temporary_health
+                kebo.animation.stats.health = temporary_health
                 kebo.score = temporary_score
                 enemy_list = world.character_list
                 score_bone = Item(const.SCREEN_WIDTH - 115, 26, 0, bone_images, True)

@@ -2,6 +2,9 @@ import constants as const
 from items import Item
 from character import Character
 from stats import Stats
+from player import Player
+from enemy import Enemy
+from boss import Boss
 
 class World():
     def __init__(self) -> None:
@@ -40,15 +43,15 @@ class World():
                     self.item_list.append(potion)
                     tile_data[0] = tile_list[0]
                 elif tile == 11:
-                    player = Character(image_x, image_y, 100, mob_animations, 0, False, 1, Stats(100))
+                    player = Player(image_x, image_y, mob_animations, 0, 1, Stats(100))
                     self.player = player
                     tile_data[0] = tile_list[0]
                 elif tile >= 12 and tile <= 16:
-                    enemy = Character(image_x, image_y, 100, mob_animations, tile - 11, False, 1, Stats(100))
+                    enemy = Enemy(image_x, image_y, mob_animations, tile - 11, 1, Stats(100))
                     self.character_list.append(enemy)
                     tile_data[0] = tile_list[0]
                 elif tile == 17:
-                    enemy = Character(image_x, image_y, 150, mob_animations, 6, True, 2, Stats(100))
+                    enemy = Boss(image_x, image_y, mob_animations, 6, 2, Stats(150))
                     self.character_list.append(enemy)
                     tile_data[0] = tile_list[0]
 
