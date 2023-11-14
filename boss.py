@@ -1,10 +1,19 @@
 from character import Character
 import pygame
-import constants as const
+import config.constants as const
 import math
 import weapon
 
+# TODO: add docstrings to refactorized methods
+
 class Boss(Character):
+    """
+    Concrete Product Class representing the Boss enemy character in the Pawtect the Realm game.
+    This class inherits from the Character abstract base class.
+
+    Attributes:
+        None
+    """
     def move(self, dx, dy, obstacle_tiles):
         self.animation.stats.running = False
         

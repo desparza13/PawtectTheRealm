@@ -1,7 +1,7 @@
 import random
 import pygame
 import math
-import constants as const
+import config.constants as const
 
 class Weapon():
     def __init__(self,image, projectile_image) -> None:

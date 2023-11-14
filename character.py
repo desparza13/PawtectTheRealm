@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import math
 import pygame
-import constants as const
+import config.constants as const
 import animation
 
 class Character(ABC):

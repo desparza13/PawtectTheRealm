@@ -1,9 +1,19 @@
 from character import Character
 import math
-import constants as const
+import config.constants as const
 
 class Player(Character):
+    """
+    Concrete Product Class representing the Player character in the Pawtect the Realm game.
+    This class inherits from the Character abstract base class.
+
+    Attributes:
+        score: integer representing the player's score
+    """
     def __init__(self, x, y, mob_animation, char_type, size, stats):
+        '''
+        Initialize a new player
+        '''
         super().__init__(x, y, mob_animation, char_type, size, stats)
         self.score = 0
          
@@ -16,6 +26,9 @@ class Player(Character):
         return False
     
     def update_screen_scroll(self,screen_scroll):
+        '''
+        Adjusts the screen scroll based on the player's position on the screen.
+        '''
         screen_width = const.SCREEN_WIDTH
         scroll_thresh = const.SCROLL_THRESH
         scroll_height = const.SCREEN_HEIGHT
@@ -37,6 +50,9 @@ class Player(Character):
             self.animation.rect.top = scroll_thresh # 'freeze' the player's position on the screen
     
     def move(self, dx, dy, obstacle_tiles, exit_tile = None):
+        '''
+        Controls the player's animation when moving and handles collision with obstacles.
+        '''
         screen_scroll = [0, 0]
         level_complete = False
         self.animation.stats.running = False

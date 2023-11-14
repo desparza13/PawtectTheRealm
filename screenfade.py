@@ -1,5 +1,5 @@
 import pygame
-import constants as const
+import config.constants as const
 
 class ScreenFade():
     def __init__(self, screen, direction, color, speed) -> None:

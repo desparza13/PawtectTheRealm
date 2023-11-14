@@ -1,32 +1,31 @@
 import pygame
 from pygame import mixer
 import csv
-import constants as const 
-from character import Character
+import config.constants as const 
 from damage_text import DamageText
+from dungeon import Dungeon
 from items import Item
 from weapon import Weapon
 from world import World
 from screenfade import ScreenFade
 from button import Button
 from boss import Boss
+from config import game_init, image_init
 
-mixer.init()
-pygame.init()
-
-#Create game window
-screen = pygame.display.set_mode((const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
-pygame.display.set_caption("Pawtect the Realm")
-
-#Create clock for mantaining frame rate
+"""
+  FUNCTIONS AND VARIABLES FROM CONFIG/GAME_INIT.PY
+"""
+game_init.init_config()
+screen = game_init.window_config()
 clock = pygame.time.Clock()
+sounds = game_init.load_audio_assets()
+font = game_init.define_font()
 
 #define game variables
 level = 1
 start_game = False
 pause_game = False
 start_intro = False
-scree_scroll = [0, 0]
 game_over = False
 
 #Define player movement variables
@@ -35,67 +34,36 @@ moving_right = False
 moving_up = False
 moving_down = False
 
-#Define font variables
-font = pygame.font.Font("font/Minecraftia-Regular.ttf", 20)
-#print(pygame.font.get_fonts())
-
-#helped function to scale image
-def scale_img(image, scale):
-    width = image.get_width()
-    height = image.get_height()
-    new_image = pygame.transform.scale(image, (width * scale, height * scale))
-    return new_image
-
-#load music and sounds
-pygame.mixer.music.load("assets/audio/music.wav")
-pygame.mixer.music.set_volume(0.3)
-pygame.mixer.music.play(-1,0.0,5000)
-
-shot_sound = pygame.mixer.Sound("assets/audio/projectile_shot.mp3")
-shot_sound.set_volume(0.5)
-hit_sound = pygame.mixer.Sound("assets/audio/projectile_hit.wav")
-hit_sound.set_volume(0.5)
-bone_sound = pygame.mixer.Sound("assets/audio/bone.mp3")
-bone_sound.set_volume(0.5)
-heal_sound = pygame.mixer.Sound("assets/audio/heal.wav")
-heal_sound.set_volume(0.5)
-game_over_sound = pygame.mixer.Sound("assets/audio/game_over.mp3")
-game_over_sound.set_volume(0.4)
-level_up_sound = pygame.mixer.Sound("assets/audio/level_up.mp3")
-level_up_sound.set_volume(0.5)
-
-pause_sound =pygame.mixer.Sound("assets/audio/pause.mp3")
-pause_sound.set_volume(0.5)
 
 #load button images
-restart_image = scale_img(pygame.image.load("assets/buttons/button_restart.png").convert_alpha(),const.BUTTON_SCALE)
-start_image = scale_img(pygame.image.load("assets/buttons/button_start.png").convert_alpha(),const.BUTTON_SCALE)
-exit_image = scale_img(pygame.image.load("assets/buttons/button_exit.png").convert_alpha(),const.BUTTON_SCALE)
-resume_image = scale_img(pygame.image.load("assets/buttons/button_resume.png").convert_alpha(),const.BUTTON_SCALE)
+restart_image = image_init.scale_img(pygame.image.load("assets/buttons/button_restart.png").convert_alpha(),const.BUTTON_SCALE)
+start_image = image_init.scale_img(pygame.image.load("assets/buttons/button_start.png").convert_alpha(),const.BUTTON_SCALE)
+exit_image = image_init.scale_img(pygame.image.load("assets/buttons/button_exit.png").convert_alpha(),const.BUTTON_SCALE)
+resume_image = image_init.scale_img(pygame.image.load("assets/buttons/button_resume.png").convert_alpha(),const.BUTTON_SCALE)
 
 #Load heart images
-heart_empty = scale_img(pygame.image.load("assets/items/heart_empty.png").convert_alpha(),const.ITEM_SCALE)
-heart_half = scale_img(pygame.image.load("assets/items/heart_half.png").convert_alpha(),const.ITEM_SCALE)
-heart_full = scale_img(pygame.image.load("assets/items/heart_full.png").convert_alpha(),const.ITEM_SCALE)
+heart_empty = image_init.scale_img(pygame.image.load("assets/items/heart_empty.png").convert_alpha(),const.ITEM_SCALE)
+heart_half = image_init.scale_img(pygame.image.load("assets/items/heart_half.png").convert_alpha(),const.ITEM_SCALE)
+heart_full = image_init.scale_img(pygame.image.load("assets/items/heart_full.png").convert_alpha(),const.ITEM_SCALE)
 
 #Load bone images
 bone_images = []
 for x in range(4):
     image = pygame.image.load(f"assets/items/bone_f{x}.png").convert_alpha()
-    image = scale_img(image, const.ITEM_SCALE)
+    image = image_init.scale_img(image, const.ITEM_SCALE)
     bone_images.append(image)
 
 #Load potion image
-red_potion = scale_img(pygame.image.load("assets/items/potion_red.png").convert_alpha(),const.POTION_SCALE)
+red_potion = image_init.scale_img(pygame.image.load("assets/items/potion_red.png").convert_alpha(),const.POTION_SCALE)
 
 item_images = []
 item_images.append(bone_images)
 item_images.append(red_potion)
 
 #Load weapon images
-weapon_image = scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(), const.WEAPON_SCALE)
-projectile_image = scale_img(pygame.image.load("assets/weapons/projectile.png").convert_alpha(), const.WEAPON_SCALE)
-ballattack_image = scale_img(pygame.image.load("assets/weapons/ballattack.png").convert_alpha(), const.BALLATTACK_SCALE)
+weapon_image = image_init.scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(), const.WEAPON_SCALE)
+projectile_image = image_init.scale_img(pygame.image.load("assets/weapons/projectile.png").convert_alpha(), const.WEAPON_SCALE)
+ballattack_image = image_init.scale_img(pygame.image.load("assets/weapons/ballattack.png").convert_alpha(), const.BALLATTACK_SCALE)
 
 #load tilemap images
 tile_list = []
@@ -118,10 +86,13 @@ for mob in mob_types:
         temp_list = []
         for i in range(4):
             image = pygame.image.load(f"assets/characters/{mob}/{animation}/{i}.png").convert_alpha()
-            image = scale_img(image, const.SCALE)
+            image = image_init.scale_img(image, const.SCALE)
+            # TODO: delete this print
+            print(f"ADDED: {mob} in {animation} animatio, frame {i}")
             temp_list.append(image)
         animation_list.append(temp_list)
     mob_animations.append(animation_list)
+
 
 #Function for outputtong text onto the screen
 def draw_text(text, font, text_color, x, y):
@@ -177,7 +148,7 @@ with open(f"levels/level{level}_data.csv", newline="") as csvfile:
             world_data[x][y] = int(tile)
 
 
-world = World()
+world = Dungeon()
 world.process_data(world_data, tile_list, item_images, mob_animations)
 
 #Create player and enemies
@@ -230,7 +201,7 @@ while run:
         if pause_game == True:
             pygame.mixer.music.set_volume(0)
 
-            pause_sound.play()
+            sounds["pause_sound"].play()
             screen.fill(const.MENU_BG)
             if resume_button.draw(screen):
                 pause_game = False
@@ -241,7 +212,7 @@ while run:
             screen.fill(const.BG)
             
             if kebo.animation.stats.alive:
-                pause_sound.stop()
+                sounds["pause_sound"].stop()
                 pygame.mixer.music.set_volume(0.3)
 
                 #Calculate player movement
@@ -263,18 +234,18 @@ while run:
                 #   player
                 kebo.animation.update()
                 if kebo.animation.stats.alive == False:
-                    game_over_sound.play()
+                    sounds["game_over_sound"].play()
                 #   projectile
                 projectile = weapon.update(kebo)
                 if projectile:
                     projectile_group.add(projectile)
-                    shot_sound.play()
+                    sounds["shot_sound"].play()
                 for projectile in projectile_group:
                     damage, damage_pos = projectile.update(screen_scroll, world.obstacle_tiles, enemy_list)
                     if damage: 
                         damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),const.RED, font)
                         damage_text_group.add(damage_text)
-                        hit_sound.play()
+                        sounds["hit_sound"].play()
                     
                 #  Update other objects in the world
                 for enemy in enemy_list:
@@ -292,7 +263,7 @@ while run:
                         enemy.animation.update()
                 
                 damage_text_group.update(screen_scroll)
-                item_group.update(screen_scroll, kebo, bone_sound, heal_sound)
+                item_group.update(screen_scroll, kebo, sounds["bone_sound"], sounds["heal_sound"])
                 ballattack_group.update(screen_scroll, kebo)
                 world.update(screen_scroll)   
                 
@@ -326,7 +297,7 @@ while run:
 
             #Check if level is complete
             if level_complete:
-                level_up_sound.play()
+                sounds["level_up_sound"].play()
                 start_intro = True
                 level += 1
                 world_data = reset_level()
@@ -336,7 +307,7 @@ while run:
                     for x, row in enumerate(reader):
                         for y, tile in enumerate(row):
                             world_data[x][y] = int(tile)
-                world = World()
+                world = Dungeon()
                 world.process_data(world_data, tile_list, item_images, mob_animations)
                 temporary_health = kebo.animation.stats.health
                 temporary_score = kebo.score
@@ -382,7 +353,6 @@ while run:
                             item_group.add(item)
                     
             
-        
     #Event handler
     for event in pygame.event.get():
         #Close game
@@ -391,16 +361,12 @@ while run:
         #Keyboard presses
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a:
-                # print("Left")
                 moving_left = True
             if event.key == pygame.K_d:
-                # print("Right")
                 moving_right = True
             if event.key == pygame.K_w:
-                # print("Up")
                 moving_up = True
             if event.key == pygame.K_s:
-                # print("Down")
                 moving_down = True
             if event.key == pygame.K_ESCAPE:
                 pause_game = True
@@ -408,16 +374,12 @@ while run:
         #Keyboard released
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
-                # print("Left")
                 moving_left = False
             if event.key == pygame.K_d:
-                # print("Right")
                 moving_right = False
             if event.key == pygame.K_w:
-                # print("Up")
                 moving_up = False
             if event.key == pygame.K_s:
-                # print("Down")
                 moving_down = False
             
     #Update graphics
