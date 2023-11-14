@@ -2,6 +2,7 @@ import math
 import pygame
 import constants as const
 import stats
+from music_controller import GameEventPublisher
 
 class Animation():
     """
@@ -100,6 +101,8 @@ class Animation():
         '''
         The main method to update the character's animation state and frame index.
         '''
+        if hasattr(self, 'publisher') and self.publisher:
+                self.publisher.end_boss_fight()
         self.update_health_status()
         self.update_hit_cooldown()
         current_action = 1 if self.stats.running else 0 # 1 running / 0 idle

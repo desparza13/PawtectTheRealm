@@ -10,6 +10,7 @@ from world import World
 from screenfade import ScreenFade
 from button import Button
 from boss import Boss
+from music_controller import GameEventPublisher, MusicController
 
 mixer.init()
 pygame.init()
@@ -22,7 +23,7 @@ pygame.display.set_caption("Pawtect the Realm")
 clock = pygame.time.Clock()
 
 #define game variables
-level = 1
+level = 3
 start_game = False
 pause_game = False
 start_intro = False
@@ -66,6 +67,11 @@ level_up_sound.set_volume(0.5)
 
 pause_sound =pygame.mixer.Sound("assets/audio/pause.mp3")
 pause_sound.set_volume(0.5)
+
+#Music controller observer
+music_publisher = GameEventPublisher()
+music_controller = MusicController()
+music_publisher.subscribe(music_controller)
 
 #load button images
 restart_image = scale_img(pygame.image.load("assets/buttons/button_restart.png").convert_alpha(),const.BUTTON_SCALE)
@@ -279,6 +285,7 @@ while run:
                 #  Update other objects in the world
                 for enemy in enemy_list:
                     if isinstance(enemy,Boss):
+                        enemy.set_publisher(music_publisher)
                         ballattack = enemy.ai(kebo, world.obstacle_tiles, screen_scroll, ballattack_image)
                         if ballattack: 
                             ballattack_group.add(ballattack)
