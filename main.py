@@ -10,6 +10,7 @@ from world import World
 from screenfade import ScreenFade
 from button import Button
 from boss import Boss
+from music_controller import GameEventPublisher, MusicController
 from config import game_init, image_init
 
 """
@@ -22,7 +23,7 @@ sounds = game_init.load_audio_assets()
 font = game_init.define_font()
 
 #define game variables
-level = 1
+level = 3
 start_game = False
 pause_game = False
 start_intro = False
@@ -34,6 +35,11 @@ moving_right = False
 moving_up = False
 moving_down = False
 
+
+#Music controller observer
+music_publisher = GameEventPublisher()
+music_controller = MusicController()
+music_publisher.subscribe(music_controller)
 
 #load button images
 restart_image = image_init.scale_img(pygame.image.load("assets/buttons/button_restart.png").convert_alpha(),const.BUTTON_SCALE)
@@ -250,6 +256,7 @@ while run:
                 #  Update other objects in the world
                 for enemy in enemy_list:
                     if isinstance(enemy,Boss):
+                        enemy.set_publisher(music_publisher)
                         ballattack = enemy.ai(kebo, world.obstacle_tiles, screen_scroll, ballattack_image)
                         if ballattack: 
                             ballattack_group.add(ballattack)

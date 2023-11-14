@@ -16,13 +16,13 @@ class Player(Character):
         '''
         super().__init__(x, y, mob_animation, char_type, size, stats)
         self.score = 0
-         
+
     def check_exit_tile(self, exit_tile):
         if exit_tile[1].colliderect(self.animation.rect):
                 # ensure player's close to the exit ladder
                 exit_dist = math.sqrt(((self.animation.rect.centerx - exit_tile[1].centerx) ** 2) + ((self.animation.rect.centery - exit_tile[1].centery) ** 2))
                 if exit_dist < 20:
-                     return True
+                    return True
         return False
     
     def update_screen_scroll(self,screen_scroll):

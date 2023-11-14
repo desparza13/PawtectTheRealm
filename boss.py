@@ -3,6 +3,7 @@ import pygame
 import config.constants as const
 import math
 import weapon
+from music_controller import GameEventPublisher
 
 # TODO: add docstrings to refactorized methods
 
@@ -14,11 +15,17 @@ class Boss(Character):
     Attributes:
         None
     """
+    def set_publisher(self, publisher: GameEventPublisher):
+        self.publisher = publisher
+        
     def move(self, dx, dy, obstacle_tiles):
         self.animation.stats.running = False
         
         if dx!= 0 or dy != 0:
             self.animation.stats.running = True
+            #Play boss music
+            if hasattr(self, 'publisher') and self.publisher:
+                self.publisher.start_boss_fight()
         #Check the direction of the character
         
         if dx < 0:
@@ -32,7 +39,7 @@ class Boss(Character):
         
         #check collision with obstacles
         self.collide_with_obstacles(dx,dy,obstacle_tiles)
-          
+
     def ai(self, player, obstacle_tiles, screen_scroll, ballattack_image):
         clipped_line = ()
         stun_cooldown = 0
