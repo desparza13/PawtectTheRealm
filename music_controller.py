@@ -2,6 +2,8 @@
 
 from abc import ABC, abstractmethod
 
+import pygame
+
 # Publisher
 class GameEventPublisher:
     _in_boss_fight = False
@@ -33,11 +35,21 @@ class MusicObserver(ABC):
 
 # Concrete Observer
 class MusicController(MusicObserver):
+    def __init__(self):
+        self.current_track = None
+
     def update(self, publisher: GameEventPublisher):
-        import pygame.mixer
-        if publisher._in_boss_fight:
+        #Check if you are in a fight
+        if publisher._in_boss_fight and self.current_track != 'boss':
             pygame.mixer.music.load('assets/audio/boss_music.mp3')
-            pygame.mixer.music.play(-1,0.0,5000)
-        else:
+            pygame.mixer.music.play(-1)
+            self.current_track = 'boss'
+        #Check if normal musica
+        elif not publisher._in_boss_fight and self.current_track != 'original':
             pygame.mixer.music.load('assets/audio/music.wav')
-            pygame.mixer.music.play(-1,0.0,5000)
+            pygame.mixer.music.play(-1)
+            self.current_track = 'original'
+
+
+
+

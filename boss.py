@@ -15,6 +15,10 @@ class Boss(Character):
     Attributes:
         None
     """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.boss_music_started = False
+        
     def set_publisher(self, publisher: GameEventPublisher):
         self.publisher = publisher
         
@@ -23,11 +27,8 @@ class Boss(Character):
         
         if dx!= 0 or dy != 0:
             self.animation.stats.running = True
-            #Play boss music
-            if hasattr(self, 'publisher') and self.publisher:
-                self.publisher.start_boss_fight()
+                
         #Check the direction of the character
-        
         if dx < 0:
             self.animation.flip = True
         if dx > 0:
@@ -39,8 +40,28 @@ class Boss(Character):
         
         #check collision with obstacles
         self.collide_with_obstacles(dx,dy,obstacle_tiles)
-
+        
+    def is_visible_on_screen(self, screen_scroll):
+        # Logic to determine if the boss is within the current screen bounds.
+        # This is a placeholder and should be replaced with actual visibility determination logic.
+        screen_rect = pygame.Rect(screen_scroll[0], screen_scroll[1], const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
+        return self.animation.rect.colliderect(screen_rect)
+    
     def ai(self, player, obstacle_tiles, screen_scroll, ballattack_image):
+        # Verificar si el jefe está vivo y actuar en consecuencia
+        if not self.animation.stats.alive and self.boss_music_started:
+            self.notify_boss_defeated()  
+            self.boss_music_started = False
+        # Check if the boss is visible on the screen
+        elif self.animation.stats.alive:
+            if self.is_visible_on_screen(screen_scroll) and not self.boss_music_started:
+                self.notify_boss_appeared()  
+                self.boss_music_started = True
+            elif not self.is_visible_on_screen(screen_scroll) and self.boss_music_started:
+                self.notify_boss_defeated()  
+                self.boss_music_started = False
+
+            
         clipped_line = ()
         stun_cooldown = 0
         ballattack = None
@@ -103,3 +124,14 @@ class Boss(Character):
             player.animation.stats.health -= 10
             player.animation.stats.hit = True
             player.animation.stats.last_hit = pygame.time.get_ticks()
+
+    def notify_boss_appeared(self):
+        if self.publisher:
+            self.publisher.start_boss_fight()
+
+    def notify_boss_defeated(self):
+        if self.publisher:
+            self.publisher.end_boss_fight()
+
+
+
