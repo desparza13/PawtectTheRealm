@@ -304,6 +304,7 @@ while run:
 
             #Check if level is complete
             if level_complete:
+                music_publisher.end_boss_fight()
                 sounds["level_up_sound"].play()
                 start_intro = True
                 level += 1
