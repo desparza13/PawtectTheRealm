@@ -6,9 +6,19 @@ import weapon
 
 class ai():
     def __init__(self,animation) -> None:
+        """
+        Initializes the AI component with the given animation object.
+
+        Parameters:
+            animation (Animation): The animation component associated with this AI.
+        """
         self.animation = animation
         
     def ai_method(self, player, obstacle_tiles, screen_scroll, ballattack_image):
+        """
+        Processes the AI behavior of the character. This includes moving the character based on the player's position,
+        checking line of sight, attacking the player, and managing ball attacks.
+        """
         clipped_line = ()
         stun_cooldown = 0
         ballattack = None
@@ -67,6 +77,10 @@ class ai():
 
 
     def attack_the_player(self, dist, player):
+        """
+        Attacks the player if the player is within attack range and not already hit.
+        Reduces the player's health and marks the player as hit.
+        """
         #check if the enemy is attacking the player
         if dist < const.ATTACK_RANGE and not player.animation.stats.hit:
             player.animation.stats.health -= 10

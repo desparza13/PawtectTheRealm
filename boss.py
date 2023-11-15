@@ -13,75 +13,93 @@ class Boss(Character):
     This class inherits from the Character abstract base class.
 
     Attributes:
-        None
+        boss_music_started
+        publisher
     """
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the Boss object with the same arguments as the Character class, and sets the
+        flag for boss music to not started.
+        """
         super().__init__(*args, **kwargs)
         self.boss_music_started = False
         
+        
     def set_publisher(self, publisher: GameEventPublisher):
+        """
+        Sets the publisher for the boss to notify about game events such as starting and ending the boss fight.
+        """
         self.publisher = publisher
         
-    def move(self, dx, dy, obstacle_tiles):
-        self.animation.stats.running = False
         
+    def move(self, dx, dy, obstacle_tiles):
+        """
+        Moves the boss character and checks for collisions with obstacles.
+        """
+        self.animation.stats.running = False
+        # Is Boss moving?
         if dx!= 0 or dy != 0:
             self.animation.stats.running = True
                 
-        #Check the direction of the character
-        if dx < 0:
-            self.animation.flip = True
-        if dx > 0:
-            self.animation.flip = False
+        # Set the animation flip based on the direction of movement.
+        self.animation.flip = dx < 0
             
-        #control diagonal speed
+        #Normalize diagonal speed
         if dx!= 0 and dy!=0:
             dx, dy = self.control_diagonal_speed(dx,dy)
         
-        #check collision with obstacles
+        # Perform collision checks with the given obstacles.
         self.collide_with_obstacles(dx,dy,obstacle_tiles)
         
+        
     def is_visible_on_screen(self, screen_scroll):
-        # Logic to determine if the boss is within the current screen bounds.
-        # This is a placeholder and should be replaced with actual visibility determination logic.
+        """
+        Checks if the boss is currently visible on screen.
+        """
         screen_rect = pygame.Rect(screen_scroll[0], screen_scroll[1], const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
         return self.animation.rect.colliderect(screen_rect)
     
     def ai(self, player, obstacle_tiles, screen_scroll, ballattack_image):
-        # Verificar si el jefe está vivo y actuar en consecuencia
+        """
+        Defines the AI logic for the boss, including moving towards the player and attacking.
+        """
+        # Stop boss music and reset flag if the boss is not alive
         if not self.animation.stats.alive and self.boss_music_started:
             self.notify_boss_defeated()  
             self.boss_music_started = False
-        # Check if the boss is visible on the screen
+            
+        # If the boss is alive, manage music based on visibility
         elif self.animation.stats.alive:
+            # Start music if the boss becomes visible on screen
             if self.is_visible_on_screen(screen_scroll) and not self.boss_music_started:
                 self.notify_boss_appeared()  
                 self.boss_music_started = True
+            # Stop music if the boss is no longer visible on screen
             elif not self.is_visible_on_screen(screen_scroll) and self.boss_music_started:
                 self.notify_boss_defeated()  
                 self.boss_music_started = False
 
-            
         clipped_line = ()
         stun_cooldown = 0
         ballattack = None
         ai_dx = 0
         ai_dy = 0
-        #reposition the mobs based on screen scroll
+        
+        # Reposition the boss based on screen scroll to keep it in the correct world position
         self.animation.rect.x += screen_scroll[0]
         self.animation.rect.y += screen_scroll[1]
 
-        #create a line of sight from the enemy to the player
+        # Determine if the boss has a clear line of sight to the player
         line_of_sight = ((self.animation.rect.centerx, self.animation.rect.centery), (player.animation.rect.centerx, player.animation.rect.centery))
-        #check if the line of sight collides with any obstacle
         for obstacle in obstacle_tiles:
             if obstacle[1].clipline(line_of_sight):
+                # Line of sight is blocked by an obstacle
                 clipped_line = obstacle[1].clipline(line_of_sight)
 
-
-        # check distance to player
+        # Calculate distance to the player to determine if the boss should move or attack
         dist = math.sqrt((self.animation.rect.centerx - player.animation.rect.centerx)**2 + ((self.animation.rect.centery - player.animation.rect.centery)**2))
-        # if there's no intersection, then the enemy is going to go towards the player
+        
+        # Determine boss's movement direction based on player's position if in range
         should_move_towards_player = not clipped_line and dist > const.RANGE
         if should_move_towards_player:
             if self.animation.rect.centerx > player.animation.rect.centerx:
@@ -93,19 +111,21 @@ class Boss(Character):
             if self.animation.rect.centery < player.animation.rect.centery:
                 ai_dy = const.ENEMY_SPEED
         
+        # Execute boss actions if alive and not stunned
         if self.animation.stats.alive: 
             if not self.animation.stats.stunned:
-                #move towards the player
+                # Move towards the player and attempt to attack
                 self.move(ai_dx, ai_dy, obstacle_tiles)
-                #attack the player
                 self.attack_the_player(dist, player)
-                #boss enemies shoot ballattacks
+                
+                # Initiate a projectile attack if within range and cooldown has passed
                 ballattack_cooldown = 700
                 if dist < 500:
                     if pygame.time.get_ticks() - self.animation.stats.last_attack >= ballattack_cooldown:
                         ballattack = weapon.BallAttack(ballattack_image, self.animation.rect.centerx, self.animation.rect.centery, player.animation.rect.centerx, player.animation.rect.centery)
                         self.animation.stats.last_attack = pygame.time.get_ticks()
 
+            # Reset boss stats if hit
             if self.animation.stats.hit:
                 self.animation.stats.hit = False
                 self.animation.stats.last_hit = pygame.time.get_ticks()
@@ -115,10 +135,15 @@ class Boss(Character):
                 
             if (pygame.time.get_ticks() - self.animation.stats.last_hit) > stun_cooldown:
                 self.animation.stats.stunned = False
+                
+        # Return a BallAttack object if an attack was initiated, None otherwise
         return ballattack
 
 
     def attack_the_player(self, dist, player):
+        """
+        Initiates an attack on the player if within a certain range.
+        """
         #check if the enemy is attacking the player
         if dist < const.ATTACK_RANGE and not player.animation.stats.hit:
             player.animation.stats.health -= 10
@@ -126,10 +151,16 @@ class Boss(Character):
             player.animation.stats.last_hit = pygame.time.get_ticks()
 
     def notify_boss_appeared(self):
+        """
+        Notifies the game event publisher that the boss has appeared.
+        """
         if self.publisher:
             self.publisher.start_boss_fight()
 
     def notify_boss_defeated(self):
+        """
+        Notifies the game event publisher that the boss has been defeated.
+        """
         if self.publisher:
             self.publisher.end_boss_fight()
 
