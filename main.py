@@ -316,7 +316,7 @@ while run:
                     for x, row in enumerate(reader):
                         for y, tile in enumerate(row):
                             world_data[x][y] = int(tile)
-                world = Dungeon()
+                world = Garden()
                 world.process_data(world_data, tile_list, item_images, mob_animations)
                 temporary_health = kebo.animation.stats.health
                 temporary_score = kebo.score
@@ -350,7 +350,7 @@ while run:
                             for x, row in enumerate(reader):
                                 for y, tile in enumerate(row):
                                     world_data[x][y] = int(tile)
-                        world = Dungeon()
+                        world = Garden()
                         world.process_data(world_data, tile_list, item_images, mob_animations)
                         temporary_score = kebo.score
                         kebo = world.player
