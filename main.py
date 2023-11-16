@@ -4,6 +4,7 @@ import csv
 import config.constants as const 
 from damage_text import DamageText
 from dungeon import Dungeon
+from garden import Garden
 from items import Item
 from weapon import Weapon
 from world import World
@@ -23,7 +24,7 @@ sounds = game_init.load_audio_assets()
 font = game_init.define_font()
 
 #define game variables
-level = 3
+level = 1
 start_game = False
 pause_game = False
 start_intro = False
@@ -74,7 +75,7 @@ ballattack_image = image_init.scale_img(pygame.image.load("assets/weapons/ballat
 #load tilemap images
 tile_list = []
 for x in range(const.TILE_TYPES):
-    tile_image = pygame.image.load(f"assets/tiles/{x}.png").convert_alpha()
+    tile_image = pygame.image.load(f"assets/tiles/garden/{x}.png").convert_alpha()
     tile_image = pygame.transform.scale(tile_image, (const.TILE_SIZE, const.TILE_SIZE))
     tile_list.append(tile_image)
 
@@ -94,7 +95,7 @@ for mob in mob_types:
             image = pygame.image.load(f"assets/characters/{mob}/{animation}/{i}.png").convert_alpha()
             image = image_init.scale_img(image, const.SCALE)
             # TODO: delete this print
-            print(f"ADDED: {mob} in {animation} animatio, frame {i}")
+            print(f"ADDED: {mob} in {animation} animation, frame {i}")
             temp_list.append(image)
         animation_list.append(temp_list)
     mob_animations.append(animation_list)
@@ -154,7 +155,7 @@ with open(f"levels/level{level}_data.csv", newline="") as csvfile:
             world_data[x][y] = int(tile)
 
 
-world = Dungeon()
+world = Garden()
 world.process_data(world_data, tile_list, item_images, mob_animations)
 
 #Create player and enemies
