@@ -24,7 +24,7 @@ sounds = game_init.load_audio_assets()
 font = game_init.define_font()
 
 #define game variables
-level = 3
+level = 6
 start_game = False
 pause_game = False
 start_intro = False
