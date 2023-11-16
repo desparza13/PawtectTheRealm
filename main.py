@@ -24,7 +24,7 @@ sounds = game_init.load_audio_assets()
 font = game_init.define_font()
 
 #define game variables
-level = 1
+level = 6
 start_game = False
 pause_game = False
 start_intro = False
@@ -349,7 +349,7 @@ while run:
                             for x, row in enumerate(reader):
                                 for y, tile in enumerate(row):
                                     world_data[x][y] = int(tile)
-                        world = World()
+                        world = Dungeon()
                         world.process_data(world_data, tile_list, item_images, mob_animations)
                         temporary_score = kebo.score
                         kebo = world.player
