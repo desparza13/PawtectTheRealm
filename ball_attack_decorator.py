@@ -7,7 +7,7 @@ class Attack(ABC):
         pass
 
 #Concrete Components
-class BallAttack(Attack):
+class Ball(Attack):
     def use(self) -> str:
         return 'assets/weapons'
 
@@ -21,16 +21,16 @@ class Decorator(Attack):
         return self._ball
 
 #Concrete Decorators
-class BlueBallAttack(Decorator):
+class BlueBall(Decorator):
     def use(self):
         return f"{self.ball.use()}/ballattack_b.png"
     
-class OrangeBallAttack(Decorator):
+class OrangeBall(Decorator):
     def use(self):
         return f"{self.ball.use()}/ballattack_o.png"
 
 
-class YellowBallAttack(Decorator):
+class YellowBall(Decorator):
     def use(self):
         return f"{self.ball.use()}/ballattack_y.png"
 
