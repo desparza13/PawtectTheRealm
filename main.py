@@ -1,5 +1,4 @@
 import pygame
-from pygame import mixer
 import csv
 import config.constants as const 
 from damage_text import DamageText
@@ -7,12 +6,12 @@ from dungeon import Dungeon
 from garden import Garden
 from items import Item
 from weapon import Weapon
-from world import World
 from screenfade import ScreenFade
 from button import Button
 from boss import Boss
 from music_controller import GameEventPublisher, MusicController
 from config import game_init, image_init
+from ball_attack_decorator import Ball, BlueBall, OrangeBall, YellowBall
 
 """
   FUNCTIONS AND VARIABLES FROM CONFIG/GAME_INIT.PY
@@ -24,7 +23,7 @@ sounds = game_init.load_audio_assets()
 font = game_init.define_font()
 
 #define game variables
-level = 6
+level = 1
 start_game = False
 pause_game = False
 start_intro = False
@@ -36,48 +35,31 @@ moving_right = False
 moving_up = False
 moving_down = False
 
-
 #Music controller observer
 music_publisher = GameEventPublisher()
 music_controller = MusicController()
 music_publisher.subscribe(music_controller)
 
-#load button images
-restart_image = image_init.scale_img(pygame.image.load("assets/buttons/button_restart.png").convert_alpha(),const.BUTTON_SCALE)
-start_image = image_init.scale_img(pygame.image.load("assets/buttons/button_start.png").convert_alpha(),const.BUTTON_SCALE)
-exit_image = image_init.scale_img(pygame.image.load("assets/buttons/button_exit.png").convert_alpha(),const.BUTTON_SCALE)
-resume_image = image_init.scale_img(pygame.image.load("assets/buttons/button_resume.png").convert_alpha(),const.BUTTON_SCALE)
-
-#Load heart images
-heart_empty = image_init.scale_img(pygame.image.load("assets/items/heart_empty.png").convert_alpha(),const.ITEM_SCALE)
-heart_half = image_init.scale_img(pygame.image.load("assets/items/heart_half.png").convert_alpha(),const.ITEM_SCALE)
-heart_full = image_init.scale_img(pygame.image.load("assets/items/heart_full.png").convert_alpha(),const.ITEM_SCALE)
-
-#Load bone images
-bone_images = []
-for x in range(4):
-    image = pygame.image.load(f"assets/items/bone_f{x}.png").convert_alpha()
-    image = image_init.scale_img(image, const.ITEM_SCALE)
-    bone_images.append(image)
-
-#Load potion image
-red_potion = image_init.scale_img(pygame.image.load("assets/items/potion_red.png").convert_alpha(),const.POTION_SCALE)
-
+# LOADING ASSETS AS DICTIONARIES
+# Buttons
+buttons = image_init.create_buttons()
+# Heart
+heart = image_init.load_heart_images()
+# Bone and potion images, appended to a list
+bone_images = image_init.load_four_frame_animation("bone")
+red_potion = image_init.load_single_image("potion_red")
 item_images = []
 item_images.append(bone_images)
 item_images.append(red_potion)
-
-#Load weapon images
-weapon_image = image_init.scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(), const.WEAPON_SCALE)
-projectile_image = image_init.scale_img(pygame.image.load("assets/weapons/projectile.png").convert_alpha(), const.WEAPON_SCALE)
-ballattack_image = image_init.scale_img(pygame.image.load("assets/weapons/ballattack.png").convert_alpha(), const.BALLATTACK_SCALE)
+# Weapons and projectiles
+weapon_image = image_init.load_single_image("weapon")
+projectile_image = image_init.load_single_image("projectile")
+ballattack1 = Ball()
+# Background
+cover = image_init.load_single_image("cover")
 
 #load tilemap images
-tile_list = []
-for x in range(const.TILE_TYPES):
-    tile_image = pygame.image.load(f"assets/tiles/garden/{x}.png").convert_alpha()
-    tile_image = pygame.transform.scale(tile_image, (const.TILE_SIZE, const.TILE_SIZE))
-    tile_list.append(tile_image)
+tile_list = image_init.load_tile_images(level)
 
 #Load characters images
 animation_types = ["idle", "run"]
@@ -115,12 +97,12 @@ def draw_info():
     half_hear_drawn = False
     for i in range(5):
         if kebo.animation.stats.health >= ((i+1)*20): #One full heart = 20 health
-            screen.blit(heart_full, (10 + i * 50,0)) 
+            screen.blit(heart["heart_full"], (10 + i * 50,0)) 
         elif(kebo.animation.stats.health %20 > 0) and half_hear_drawn == False:
-            screen.blit(heart_half, (10 + i * 50,0))
+            screen.blit(heart["heart_half"], (10 + i * 50,0))
             half_hear_drawn = True
         else:
-            screen.blit(heart_empty, (10 + i * 50,0))
+            screen.blit(heart["heart_empty"], (10 + i * 50,0))
 
     #level
     draw_text(f"LEVEL: {level}", font, const.WHITE, const.SCREEN_WIDTH/2, 15)
@@ -184,12 +166,6 @@ for item in world.item_list:
 intro_fade = ScreenFade(screen, 1, const.BLACK, 4)
 death_fade = ScreenFade(screen, 2, const.PINK, 6)
 
-#create button
-restart_button = Button(const.SCREEN_WIDTH //2 -175, const.SCREEN_HEIGHT // 2 - 50, restart_image)
-start_button = Button(const.SCREEN_WIDTH //2 -145, const.SCREEN_HEIGHT // 2 - 150, start_image)
-exit_button = Button(const.SCREEN_WIDTH //2 -110, const.SCREEN_HEIGHT // 2 + 50, exit_image)
-resume_button = Button(const.SCREEN_WIDTH //2 -175, const.SCREEN_HEIGHT // 2 - 150, resume_image)
-
 #Main game loop
 run = True
 while run: 
@@ -198,21 +174,20 @@ while run:
     
     if start_game == False:
         #game menu
-        screen.fill(const.MENU_BG)
-        if start_button.draw(screen):
+        screen.blit(cover, (0, 0))
+        if buttons["start_button"].draw(screen):
             start_game = True
             start_intro = True
-        if exit_button.draw(screen):
+        if buttons["exit_button"].draw(screen):
             run = False
     else:
         if pause_game == True:
             pygame.mixer.music.set_volume(0)
-
             sounds["pause_sound"].play()
             screen.fill(const.MENU_BG)
-            if resume_button.draw(screen):
+            if buttons["resume_button"].draw(screen):
                 pause_game = False
-            if exit_button.draw(screen):
+            if buttons["exit_button"].draw(screen):
                 run = False
         else:
             #Repaint background
@@ -258,6 +233,14 @@ while run:
                 for enemy in enemy_list:
                     if isinstance(enemy,Boss):
                         enemy.set_publisher(music_publisher)
+                        if enemy.animation.stats.health >=100:
+                            colorBallAtack = BlueBall(ballattack1)
+                        elif enemy.animation.stats.health >=50:
+                            colorBallAtack = OrangeBall(ballattack1)
+                        elif enemy.animation.stats.health >=0:
+                            colorBallAtack = YellowBall(ballattack1)
+
+                        ballattack_image = image_init.scale_img(pygame.image.load(colorBallAtack.use()).convert_alpha(), const.BALLATTACK_SCALE)
                         ballattack = enemy.ai(kebo, world.obstacle_tiles, screen_scroll, ballattack_image)
                         if ballattack: 
                             ballattack_group.add(ballattack)
@@ -316,7 +299,11 @@ while run:
                     for x, row in enumerate(reader):
                         for y, tile in enumerate(row):
                             world_data[x][y] = int(tile)
-                world = Garden()
+                tile_list = image_init.load_tile_images(level)
+                if (level <= 3):
+                        world = Garden()
+                else: world = Dungeon()
+
                 world.process_data(world_data, tile_list, item_images, mob_animations)
                 temporary_health = kebo.animation.stats.health
                 temporary_score = kebo.score
@@ -339,7 +326,7 @@ while run:
             if kebo.animation.stats.alive == False: 
                 if death_fade.fade():
                     
-                    if restart_button.draw(screen):
+                    if buttons["restart_button"].draw(screen):
                         death_fade.fade_counter = 0
                         start_intro = True
                         
@@ -350,7 +337,12 @@ while run:
                             for x, row in enumerate(reader):
                                 for y, tile in enumerate(row):
                                     world_data[x][y] = int(tile)
-                        world = Garden()
+                        
+                        tile_list = image_init.load_tile_images(level)
+                        if (level <= 3):
+                            world = Garden()
+                        else: world = Dungeon()
+                        
                         world.process_data(world_data, tile_list, item_images, mob_animations)
                         temporary_score = kebo.score
                         kebo = world.player

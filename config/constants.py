@@ -4,11 +4,14 @@ FPS = 60
 #Screen sizes
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+MIDDLE_WIDTH = SCREEN_WIDTH // 2
+MIDDLE_HEIGHT = SCREEN_HEIGHT // 2
 
 #Colors
 RED = (255,0,0)
+DARK_BLUE = (58, 53, 151)
 BG = (40, 25,25)
-MENU_BG = (130,0,0)
+MENU_BG = (65,41,93)
 PANEL_INFO = (50,50,50)
 WHITE = (255,255,255)
 BLACK = (0,0,0)
@@ -47,8 +50,10 @@ BALLATTACK_SPEED = 4
 
 #Tiles
 TILE_SIZE = 16 * SCALE
-TILE_TYPES = 18
+DUNGEON_TILE_TYPES = 18
 GARDEN_TILE_TYPES = 18
+DUNGEON_TILE_PATH = 'assets/tiles/dungeon/'
+GARDEN_TILE_PATH = 'assets/tiles/garden/'
 
 #Level mapsize
 ROWS = 150
@@ -78,3 +83,40 @@ START_BUTTON = BUTTON_PATH + 'button_start.png'
 EXIT_BUTTON = BUTTON_PATH + 'button_exit.png'
 RESTART_BUTTON = BUTTON_PATH + 'button_restart.png'
 RESUME_BUTTON = BUTTON_PATH + 'button_resume.png'
+
+# Items
+ITEMS_PATH = 'assets/items/'
+HEART_FULL = ITEMS_PATH + 'heart_full.png'
+HEART_HALF = ITEMS_PATH + 'heart_half.png'
+HEART_EMPTY = ITEMS_PATH + 'heart_empty.png'
+BONE_PATH = ITEMS_PATH + 'bone_'
+POTION_PATH = ITEMS_PATH + 'potion_red.png'
+
+# Characters
+CHARACTERS_PATH = 'assets/characters/'
+BIG_DEMON_IDLE = CHARACTERS_PATH + 'big_demon/idle/'
+BIG_DEMON_RUN = CHARACTERS_PATH + 'big_demon/run/'
+BLACK_CAT_IDLE = CHARACTERS_PATH + 'black_cat/idle/'
+BLACK_CAT_RUN = CHARACTERS_PATH + 'black_cat/run/'
+BROWN_CAT_IDLE = CHARACTERS_PATH + 'brown_cat/idle/'
+BROWN_CAT_RUN = CHARACTERS_PATH + 'brown_cat/run/'
+ORANGE_CAT_IDLE = CHARACTERS_PATH + 'orange_cat/idle/'
+ORANGE_CAT_RUN = CHARACTERS_PATH + 'orange_cat/run/'
+BUDGIE_IDLE = CHARACTERS_PATH + 'budgie/idle/'
+BUDGIE_RUN = CHARACTERS_PATH + 'budgie/run/'
+BUDGIE2_IDLE = CHARACTERS_PATH + 'budgie2/idle/'
+BUDGIE2_RUN = CHARACTERS_PATH + 'budgie2/run/'
+KEBO_IDLE = CHARACTERS_PATH + 'kebo/idle/'
+KEBO_RUN = CHARACTERS_PATH + 'kebo/run/'
+
+# Weapons
+WEAPONS_PATH = 'assets/weapons/'
+BALLATTACK_O = WEAPONS_PATH + 'ballattack_o.png'
+BALLATTACK_B = WEAPONS_PATH + 'ballattack_b.png'
+BALLATTACK_Y = WEAPONS_PATH + 'ballattack_y.png'
+PROJECTILE = WEAPONS_PATH + 'projectile.png'
+WEAPON = WEAPONS_PATH + 'weapon1.png'
+
+# Backgrounds
+BACKGROUND_PATH = 'assets/backgrounds/'
+COVER = BACKGROUND_PATH + 'cover.png'
