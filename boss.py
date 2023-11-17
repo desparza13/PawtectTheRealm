@@ -5,8 +5,6 @@ import math
 import weapon
 from music_controller import GameEventPublisher
 
-# TODO: add docstrings to refactorized methods
-
 class Boss(Character):
     """
     Concrete Product Class representing the Boss enemy character in the Pawtect the Realm game.

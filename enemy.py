@@ -3,8 +3,6 @@ import pygame
 import config.constants as const
 import math
 
-# TODO: add docstrings to refactorized methods
-
 class Enemy(Character):
     """
     Concrete Product Class representing the Enemy (sprites) in the Pawtect the Realm game.
