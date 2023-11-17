@@ -13,7 +13,7 @@ from button import Button
 from boss import Boss
 from music_controller import GameEventPublisher, MusicController
 from config import game_init, image_init
-from ball_atack import BallAtack, BlueBallAtack, OrangeBallAtack, YellowBallAtack
+from ball_attack import BallAttack, BlueBallAttack, OrangeBallAttack, YellowBallAttack
 
 """
   FUNCTIONS AND VARIABLES FROM CONFIG/GAME_INIT.PY
@@ -71,7 +71,7 @@ item_images.append(red_potion)
 #Load weapon images
 weapon_image = image_init.scale_img(pygame.image.load("assets/weapons/weapon1.png").convert_alpha(), const.WEAPON_SCALE)
 projectile_image = image_init.scale_img(pygame.image.load("assets/weapons/projectile.png").convert_alpha(), const.WEAPON_SCALE)
-ballatack1 = BallAtack()
+ballattack1 = BallAttack()
 
 #load tilemap images
 tile_list = []
@@ -260,11 +260,11 @@ while run:
                     if isinstance(enemy,Boss):
                         enemy.set_publisher(music_publisher)
                         if enemy.animation.stats.health >=100:
-                            colorBallAtack = BlueBallAtack(ballatack1)
+                            colorBallAtack = BlueBallAttack(ballattack1)
                         elif enemy.animation.stats.health >=50:
-                            colorBallAtack = OrangeBallAtack(ballatack1)
+                            colorBallAtack = OrangeBallAttack(ballattack1)
                         elif enemy.animation.stats.health >=0:
-                            colorBallAtack = YellowBallAtack(ballatack1)
+                            colorBallAtack = YellowBallAttack(ballattack1)
 
                         ballattack_image = image_init.scale_img(pygame.image.load(colorBallAtack.use()).convert_alpha(), const.BALLATTACK_SCALE)
                         ballattack = enemy.ai(kebo, world.obstacle_tiles, screen_scroll, ballattack_image)
