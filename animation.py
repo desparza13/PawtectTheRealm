@@ -82,7 +82,9 @@ class Animation():
         return pygame.time.get_ticks() - self.stats.last_hit > Animation.HIT_COOLDOWN
     
     def update_hit_cooldown(self):
-        '''Update timer to reset player taking the hit (1 hit per second)'''
+        '''
+        Update timer to reset player taking the hit (1 hit per second)
+        '''
         if self.char_type == 0 and self.stats.hit and self.has_hit_cooldown_passed():
             self.stats.hit = False        
     

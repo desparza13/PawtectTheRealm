@@ -57,10 +57,7 @@ class Boss(Character):
         screen_rect = pygame.Rect(screen_scroll[0], screen_scroll[1], const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
         return self.animation.rect.colliderect(screen_rect)
     
-    def ai(self, player, obstacle_tiles, screen_scroll, ballattack_image):
-        """
-        Defines the AI logic for the boss, including moving towards the player and attacking.
-        """
+    def manage_boss_music(self, screen_scroll):
         # Stop boss music and reset flag if the boss is not alive
         if not self.animation.stats.alive and self.boss_music_started:
             self.notify_boss_defeated()  
@@ -76,6 +73,13 @@ class Boss(Character):
             elif not self.is_visible_on_screen(screen_scroll) and self.boss_music_started:
                 self.notify_boss_defeated()  
                 self.boss_music_started = False
+                
+                
+    def ai(self, player, obstacle_tiles, screen_scroll, ballattack_image):
+        """
+        Defines the AI logic for the boss, including moving towards the player and attacking.
+        """
+        self.manage_boss_music(screen_scroll)
 
         clipped_line = ()
         stun_cooldown = 0
@@ -161,6 +165,5 @@ class Boss(Character):
         """
         if self.publisher:
             self.publisher.end_boss_fight()
-
 
 

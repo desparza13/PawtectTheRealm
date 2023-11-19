@@ -14,7 +14,7 @@ from config import game_init, image_init
 from ball_attack_decorator import Ball, BlueBall, OrangeBall, YellowBall
 
 """
-  FUNCTIONS AND VARIABLES FROM CONFIG/GAME_INIT.PY
+    FUNCTIONS AND VARIABLES FROM CONFIG/GAME_INIT.PY
 """
 game_init.init_config()
 screen = game_init.window_config()
@@ -23,7 +23,7 @@ sounds = game_init.load_audio_assets()
 font = game_init.define_font()
 
 #define game variables
-level = 1
+level = 6
 start_game = False
 pause_game = False
 start_intro = False
@@ -87,7 +87,7 @@ for mob in mob_types:
 def draw_text(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
     screen.blit(img,(x,y))
-   
+
 #Function for displaying game info (top bar)
 def draw_info():
     #Draw the rect of the panel

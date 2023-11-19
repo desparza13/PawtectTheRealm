@@ -5,90 +5,112 @@ import math
 
 class Enemy(Character):
     """
-    Concrete Product Class representing the Enemy (sprites) in the Pawtect the Realm game.
-    This class inherits from the Character abstract base class.
-
-    Attributes:
-        None
+    Enemy is a subclass of Character representing enemy sprites in the game.
+    It contains methods for AI behavior such as movement and attacking the player.
     """
+
     def move(self, dx, dy, obstacle_tiles):
         """
-        Moves the enemy character while considering collisions.
+        Overrides the move method to handle enemy-specific movement logic, including
+        collision detection and sprite flipping based on movement direction.
         """
-        # If there is movement, set the running status to True.
-        self.animation.stats.running = False
+        # Set running status based on movement.
         self.animation.stats.running = bool(dx or dy)
         
-        # Determine direction based on movement to flip the sprite accordingly.
+        # Flip sprite based on horizontal direction.
         self.animation.flip = dx < 0
             
-        # Normalize speed if moving diagonally to maintain consistent movement speed.
+        # Normalize diagonal movement.
         if dx and dy:
-            dx, dy = self.control_diagonal_speed(dx,dy)
+            dx, dy = self.control_diagonal_speed(dx, dy)
         
-        # Check for collisions with the obstacles.
-        self.collide_with_obstacles(dx,dy,obstacle_tiles)
-
+        # Handle collision with obstacles.
+        self.collide_with_obstacles(dx, dy, obstacle_tiles)
     
     def ai(self, player, obstacle_tiles, screen_scroll):
         """
-        Artificial Intelligence behavior for the enemy, determining movement and attacks.
+        Processes AI behavior, determining how the enemy moves and attacks the player.
         """
-        clipped_line = ()
-        stun_cooldown = 0
-        ai_dx = 0
-        ai_dy = 0
-        # Reposition based on screen scroll to maintain world position.
+        # Reposition based on screen scroll.
+        self.update_position_with_screen_scroll(screen_scroll)
+
+        # Determine if the enemy can see the player.
+        line_of_sight = self.create_line_of_sight(player)
+        visible_to_enemy = self.is_player_visible(player, obstacle_tiles, line_of_sight)
+
+        # Calculate distance to the player.
+        dist = self.calculate_distance_to_player(player)
+
+        # Determine movement based on AI logic.
+        ai_dx, ai_dy = self.determine_ai_movement(player, visible_to_enemy, dist)
+        
+        # Execute movement and attacks if the enemy is active.
+        self.execute_ai_actions(ai_dx, ai_dy, obstacle_tiles, player, dist)
+
+    def update_position_with_screen_scroll(self, screen_scroll):
+        """
+        Updates the enemy's position based on the screen scroll.
+        """
         self.animation.rect.x += screen_scroll[0]
         self.animation.rect.y += screen_scroll[1]
 
-        # Create a line of sight and check if there are any obstacles in the way
-        line_of_sight = ((self.animation.rect.centerx, self.animation.rect.centery), (player.animation.rect.centerx, player.animation.rect.centery))
-        
-        # Check for collision with line of sight to determine if the enemy can see the player
+    def create_line_of_sight(self, player):
+        """
+        Creates a line of sight from the enemy to the player for visibility checks.
+        """
+        return ((self.animation.rect.centerx, self.animation.rect.centery), 
+                (player.animation.rect.centerx, player.animation.rect.centery))
+
+    def is_player_visible(self, player, obstacle_tiles, line_of_sight):
+        """
+        Checks if the player is visible to the enemy, considering obstacles.
+        """
         for obstacle in obstacle_tiles:
             if obstacle[1].clipline(line_of_sight):
-                clipped_line = obstacle[1].clipline(line_of_sight)
+                return False
+        return True
 
+    def calculate_distance_to_player(self, player):
+        """
+        Calculates the distance from the enemy to the player.
+        """
+        return math.sqrt((self.animation.rect.centerx - player.animation.rect.centerx)**2 + 
+                        (self.animation.rect.centery - player.animation.rect.centery)**2)
 
-        # Calculate the distance to the player to decide on movement and attack
-        dist = math.sqrt((self.animation.rect.centerx - player.animation.rect.centerx)**2 + ((self.animation.rect.centery - player.animation.rect.centery)**2))
-        
-        #If the player is in range and visible, determine the movement direction.
-        should_move_towards_player = not clipped_line and dist > const.RANGE
-        if should_move_towards_player:
-            if self.animation.rect.centerx > player.animation.rect.centerx:
-                ai_dx = -const.ENEMY_SPEED
-            if self.animation.rect.centerx < player.animation.rect.centerx:
-                ai_dx = const.ENEMY_SPEED
-            if self.animation.rect.centery > player.animation.rect.centery:
-                ai_dy = -const.ENEMY_SPEED
-            if self.animation.rect.centery < player.animation.rect.centery:
-                ai_dy = const.ENEMY_SPEED
-        
-        # If the enemy is alive and not stunned, execute movement and attack.
-        if self.animation.stats.alive: 
-            if not self.animation.stats.stunned:
-                self.move(ai_dx, ai_dy, obstacle_tiles)
-                self.attack_the_player(dist, player)
+    def determine_ai_movement(self, player, visible_to_enemy, dist):
+        """
+        Determines the movement direction for the AI based on whether the player is visible and in range.
+        """
+        ai_dx, ai_dy = 0, 0
+        if visible_to_enemy and dist > const.RANGE:
+            ai_dx = -const.ENEMY_SPEED if self.animation.rect.centerx > player.animation.rect.centerx else const.ENEMY_SPEED
+            ai_dy = -const.ENEMY_SPEED if self.animation.rect.centery > player.animation.rect.centery else const.ENEMY_SPEED
+        return ai_dx, ai_dy
 
-            # Handle the enemy being hit and apply a stun effect.
-            if self.animation.stats.hit:
-                self.animation.stats.hit = False
-                self.animation.stats.last_hit = pygame.time.get_ticks()
-                self.animation.stats.stunned = True
-                self.animation.stats.running = False
-                self.animation.set_action(0) #0: idle
-                
-            if (pygame.time.get_ticks() - self.animation.stats.last_hit) > stun_cooldown:
-                self.animation.stats.stunned = False
-
-
+    def execute_ai_actions(self, ai_dx, ai_dy, obstacle_tiles, player, dist):
+        """
+        Executes the actions determined by the AI logic, including moving and attacking the player.
+        """
+        if self.animation.stats.alive and not self.animation.stats.stunned:
+            self.move(ai_dx, ai_dy, obstacle_tiles)
+            self.attack_the_player(dist, player)
+            self.handle_hit_stun()
+    
+    def handle_hit_stun(self):
+        """
+        Handles the enemy being hit and potentially stunned.
+        """
+        if self.animation.stats.hit:
+            self.animation.stats.hit = False
+            self.animation.stats.last_hit = pygame.time.get_ticks()
+            self.animation.stats.stunned = True
+            self.animation.stats.running = False
+            self.animation.set_action(0) #idle
+    
     def attack_the_player(self, dist, player):
         """
-        Attacks the player if within a certain range and the player isn't already hit.
+        Attempts to attack the player if they're within range and not already hit.
         """
-        # If the player is within attack range and not already hit, reduce health and set the hit status.
         if dist < const.ATTACK_RANGE and not player.animation.stats.hit:
             player.animation.stats.health -= 10
             player.animation.stats.hit = True
