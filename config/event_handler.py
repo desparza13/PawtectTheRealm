@@ -35,7 +35,7 @@ def check_keyboard(event) -> tuple:
     """
     Checks if the keyboard is pressed or not to update the player's movement.
     """
-    global left, right, up, down, pause
+    global left, right, up, down
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_a:
             left = True
@@ -45,10 +45,8 @@ def check_keyboard(event) -> tuple:
              up = True
         if event.key == pygame.K_s:
             down = True
-        if event.key == pygame.K_ESCAPE:
-            pause = True
     
-            #Keyboard released
+    #Keyboard released
     if event.type == pygame.KEYUP:
         if event.key == pygame.K_a:
             left = False
@@ -58,5 +56,4 @@ def check_keyboard(event) -> tuple:
             up = False
         if event.key == pygame.K_s:
             down = False
-
-    return left, right, up, down, pause
+    return left, right, up, down
