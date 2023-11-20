@@ -1,57 +1,65 @@
+from abc import ABC, abstractmethod
 import math
-import pygame
-import constants as const
+import animation
 
-class Character():
-    def __init__(self, x, y, animation_list) -> None:
-        #probar los mpvimientos con un rectangulo en lo que completamos los sprites
-        self.rect = pygame.Rect(0, 0, 40, 40)
-        #set character position
-        self.rect.center = (x, y)
-        
-        #animation 
-        self.animation_list = animation_list
-        self.frame_index = 0
-        self.update_time = pygame.time.get_ticks() #How much time has passed since the last time we update the frame
-        self.image = animation_list[self.frame_index] 
+class Character(ABC):
+    """
+    Abstract base class representing a generic character in the Pawtect the Realm game.
+    This class should be subclassed to create specific character types.
 
-        self.flip = False
+    Attributes:
+        char_type (int): The type of character.
+        animation (Animation): An animation object managing the character's sprites and movements.
+    """
+    
+    def __init__(self, x, y, mob_animation, char_type, size, stats) -> None:
+        '''
+        Initialize a new character
+        '''
+        self.char_type = char_type
+        self.animation = animation.Animation(mob_animation, char_type, size, x, y, stats)    
+        
+    def collide_with_obstacles(self, dx, dy, obstacle_tiles) -> None:
+        '''
+        Handles character collision with obstacles in both x and y directions.
+        '''
+        self.x_collision(dx, obstacle_tiles)
+        self.y_collision(dy, obstacle_tiles)
 
-        
-    def move(self, dx, dy):
-        #Check the direction of the character
-        if dx < 0:
-            self.flip = True
-        if dx > 0:
-            self.flip = False
+    def x_collision(self, dx, obstacle_tiles) -> None:
+        '''
+        Handles character collision with obstacles in the x direction.
+        '''
+        self.animation.rect.x += dx
+        for obstacle in obstacle_tiles:
+            if obstacle[1].colliderect(self.animation.rect):
+                if dx > 0:  # Moving right
+                    self.animation.rect.right = obstacle[1].left
+                elif dx < 0:  # Moving left
+                    self.animation.rect.left = obstacle[1].right
+
+    def y_collision(self, dy, obstacle_tiles) -> None:
+        '''
+        Handles character collision with obstacles in the y direction.
+        '''
+        self.animation.rect.y += dy
+        for obstacle in obstacle_tiles:
+            if obstacle[1].colliderect(self.animation.rect):
+                if dy > 0:  # Moving down
+                    self.animation.rect.bottom = obstacle[1].top
+                elif dy < 0:  # Moving up
+                    self.animation.rect.top = obstacle[1].bottom
+                    
+    def control_diagonal_speed(self,dx,dy) -> tuple:
+        '''
+        Adjusts the character's speed when moving diagonally to maintain a consistent overall velocity.
+        '''
+        factor = (math.sqrt(2)/2)
+        return (dx * factor), (dy * factor)
             
-        #control diagonal speed
-        if dx!= 0 and dy!=0:
-            dx = dx * (math.sqrt(2)/2)
-            dy = dy * (math.sqrt(2)/2)
-            
-        self.rect.x += dx
-        self.rect.y += dy
-        
-    def update(self):
-        '''Method for handle character animation '''
-        animation_cooldown = 90 #speed of the animation
-        
-        #Handle animation
-        #update image
-        self.image = self.animation_list[self.frame_index]
-        
-        #check if enough time has passed since the last update
-        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
-            self.frame_index +=1 #move to the next frame
-            self.update_time = pygame.time.get_ticks() #reset the timer
-            
-        #check if the animation has finished
-        if self.frame_index >= len(self.animation_list):
-            self.frame_index = 0 #reset frame index
-        
-    def draw(self, surface):
-        flipped_image = pygame.transform.flip(self.image, self.flip, False) #image, flip horizontal, flip vertical
-        surface.blit(flipped_image, self.rect) #draw the image
-        pygame.draw.rect(surface, const.RED, self.rect, 1) #empty rectangle with the image
-        
+    @abstractmethod        
+    def move() -> None:
+        '''
+        Abstract method to be implemented by subclasses to define character movement.
+        '''
+        pass
