@@ -1,3 +1,4 @@
+from ball_attack_decorator import BlueBall, OrangeBall, YellowBall
 from character import Character
 import pygame
 import config.constants as const
@@ -220,3 +221,16 @@ class Boss(Character):
         """
         if self.publisher:
             self.publisher.end_boss_fight()
+            
+    def define_ball_color(self, ball):
+        '''
+        Define the color of the ball based on the boss's health
+        '''
+        if self.animation.stats.health >=200:
+            colorBallAttack = BlueBall(ball)
+        elif self.animation.stats.health >=100:
+            colorBallAttack = OrangeBall(ball)
+        else:
+            colorBallAttack = YellowBall(ball)
+            
+        return colorBallAttack
