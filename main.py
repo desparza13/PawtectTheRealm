@@ -5,7 +5,7 @@ from weapon import Weapon
 from boss import Boss
 from music_controller import GameEventPublisher, MusicController
 from config import game_init, image_init, event_handler
-from ball_attack_decorator import Ball, BlueBall, OrangeBall, YellowBall
+from ball_attack_decorator import Ball
 
 game_init.init_config()
 screen = game_init.window_config()
@@ -103,6 +103,7 @@ while run:
             if kebo.animation.stats.alive:
                 sounds["pause_sound"].stop()
                 pygame.mixer.music.set_volume(0.3)
+                
                 #Calculate player movement
                 dx, dy = event_handler.calculate_player_movement(moving_left, moving_right, moving_down, moving_up)
                 #Move player
@@ -128,14 +129,8 @@ while run:
                 for enemy in enemy_list:
                     if isinstance(enemy,Boss):
                         enemy.set_publisher(music_publisher)
-                        if enemy.animation.stats.health >=100:
-                            colorBallAtack = BlueBall(ballattack1)
-                        elif enemy.animation.stats.health >=50:
-                            colorBallAtack = OrangeBall(ballattack1)
-                        elif enemy.animation.stats.health >=0:
-                            colorBallAtack = YellowBall(ballattack1)
-
-                        ballattack_image = image_init.scale_img(pygame.image.load(colorBallAtack.use()).convert_alpha(), const.BALLATTACK_SCALE)
+                        colorBallAttack = enemy.define_ball_color(ballattack1)
+                        ballattack_image = image_init.scale_img(pygame.image.load(colorBallAttack.use()).convert_alpha(), const.BALLATTACK_SCALE)
                         ballattack = enemy.ai(kebo, world.obstacle_tiles, screen_scroll, ballattack_image)
                         if ballattack: 
                             ballattack_group.add(ballattack)
