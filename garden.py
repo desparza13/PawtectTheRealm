@@ -1,4 +1,5 @@
-import config.constants as const 
+import config.constants as const
+from enemy import Enemy 
 from stats import Stats
 from boss import Boss
 from world import World
@@ -41,15 +42,17 @@ class Garden(World):
         elif tile >= 12 and tile <= 16:
             self.handle_enemies(tile, tile_data, mob_animations, tile_list)
         # Extra characters
-        elif tile >= 17 and tile <= 20: 
-            self.handle_extra_characters(tile_data, mob_animations, tile_list)
+        elif tile >= 18 and tile <= 20: 
+            self.handle_extra_characters(tile, tile_data, mob_animations, tile_list)
         # Place any tile 
         if tile >= 0:
             self.map_tiles.append(tile_data)
 
-    def handle_extra_characters(self, tile_data, mob_animations, tile_list) -> None:
+    def handle_extra_characters(self, tile, tile_data, mob_animations, tile_list) -> None:
         """
         Handles the creation of extra mobs (not sprites) in the garden level.
         For ease of implementation, these mobs will enter into the character list.
         """
-        pass 
+        character = Enemy(tile_data[2], tile_data[3], mob_animations, tile - 11, 1, Stats(10))
+        self.character_list.append(character)
+        tile_data[0] = tile_list[0]

@@ -52,7 +52,7 @@ BALLATTACK_SPEED = 4
 #Tiles
 TILE_SIZE = 16 * SCALE
 DUNGEON_TILE_TYPES = 18
-GARDEN_TILE_TYPES = 18
+GARDEN_TILE_TYPES = 30
 DUNGEON_TILE_PATH = 'assets/tiles/dungeon/'
 GARDEN_TILE_PATH = 'assets/tiles/garden/'
 
@@ -65,7 +65,7 @@ SCROLL_THRESH = 200
 
 # ------ EXISTING MOBS ------
 ANIMATION_TYPES = ["idle", "run"]
-MOB_TYPES = ["kebo","black_cat", "brown_cat","orange_cat", "budgie", "budgie2", "big_demon"]
+MOB_TYPES = ["kebo","black_cat", "brown_cat","orange_cat", "budgie", "budgie2", "big_demon", "sol", "nia", "milo"]
 
 
 # ------ LEVEL INFORMATION ------
