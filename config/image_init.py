@@ -85,4 +85,6 @@ def load_tile_images(level:int) -> dict:
         img = pygame.image.load(tile_path + str(i) + ".png").convert_alpha()
         img = pygame.transform.scale(img, (const.TILE_SIZE, const.TILE_SIZE))
         tile_images.append(img)
+
+    print('TILE IMAGES', tile_images)
     return tile_images

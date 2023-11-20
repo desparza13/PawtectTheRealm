@@ -51,6 +51,7 @@ red_potion = image_init.load_single_image("potion_red")
 item_images = []
 item_images.append(bone_images)
 item_images.append(red_potion)
+print('ITEM IMAGES', item_images)
 # Weapons and projectiles
 weapon_image = image_init.load_single_image("weapon")
 projectile_image = image_init.load_single_image("projectile")
