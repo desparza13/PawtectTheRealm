@@ -1,3 +1,4 @@
+
 #Time
 FPS = 60
 
@@ -61,6 +62,14 @@ COLS = 150
 
 # Camera settings
 SCROLL_THRESH = 200
+
+# ------ EXISTING MOBS ------
+ANIMATION_TYPES = ["idle", "run"]
+MOB_TYPES = ["kebo","black_cat", "brown_cat","orange_cat", "budgie", "budgie2", "big_demon"]
+
+
+# ------ LEVEL INFORMATION ------
+LEVELS_PATH = 'levels/level'
 
 # ------ ASSETS PATHS ------
 # Music and sounds

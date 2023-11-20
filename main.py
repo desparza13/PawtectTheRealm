@@ -1,21 +1,12 @@
 import pygame
-import csv
 import config.constants as const 
 from damage_text import DamageText
-from dungeon import Dungeon
-from garden import Garden
-from items import Item
 from weapon import Weapon
-from screenfade import ScreenFade
-from button import Button
 from boss import Boss
 from music_controller import GameEventPublisher, MusicController
-from config import game_init, image_init
+from config import game_init, image_init, event_handler
 from ball_attack_decorator import Ball, BlueBall, OrangeBall, YellowBall
 
-"""
-    FUNCTIONS AND VARIABLES FROM CONFIG/GAME_INIT.PY
-"""
 game_init.init_config()
 screen = game_init.window_config()
 clock = pygame.time.Clock()
@@ -51,7 +42,6 @@ red_potion = image_init.load_single_image("potion_red")
 item_images = []
 item_images.append(bone_images)
 item_images.append(red_potion)
-print('ITEM IMAGES', item_images)
 # Weapons and projectiles
 weapon_image = image_init.load_single_image("weapon")
 projectile_image = image_init.load_single_image("projectile")
@@ -59,122 +49,39 @@ ballattack1 = Ball()
 # Background
 cover = image_init.load_single_image("cover")
 
-#load tilemap images
+# LOADING ANIMATIONS AND TILES
 tile_list = image_init.load_tile_images(level)
+mob_animations = image_init.load_mob_animations()
+intro_fade, death_fade = game_init.create_screen_fades(screen)
 
-#Load characters images
-animation_types = ["idle", "run"]
-mob_types = ["kebo","black_cat", "brown_cat","orange_cat", "budgie", "budgie2", "big_demon"]
-
-mob_animations = []
-
-for mob in mob_types:
-    #load character images
-    animation_list = []
-    for animation in animation_types:
-        #reset temporary list of images
-        temp_list = []
-        for i in range(4):
-            image = pygame.image.load(f"assets/characters/{mob}/{animation}/{i}.png").convert_alpha()
-            image = image_init.scale_img(image, const.SCALE)
-            # TODO: delete this print
-            print(f"ADDED: {mob} in {animation} animation, frame {i}")
-            temp_list.append(image)
-        animation_list.append(temp_list)
-    mob_animations.append(animation_list)
-
-
-#Function for outputtong text onto the screen
-def draw_text(text, font, text_color, x, y):
-    img = font.render(text, True, text_color)
-    screen.blit(img,(x,y))
-
-#Function for displaying game info (top bar)
-def draw_info():
-    #Draw the rect of the panel
-    pygame.draw.rect(screen, const.PANEL_INFO, (0,0,const.SCREEN_WIDTH,50))
-    pygame.draw.line(screen,const.WHITE,(0,50), (const.SCREEN_WIDTH,50)) #separate the panel info and the screen game
-    #draw lives
-    half_hear_drawn = False
-    for i in range(5):
-        if kebo.animation.stats.health >= ((i+1)*20): #One full heart = 20 health
-            screen.blit(heart["heart_full"], (10 + i * 50,0)) 
-        elif(kebo.animation.stats.health %20 > 0) and half_hear_drawn == False:
-            screen.blit(heart["heart_half"], (10 + i * 50,0))
-            half_hear_drawn = True
-        else:
-            screen.blit(heart["heart_empty"], (10 + i * 50,0))
-
-    #level
-    draw_text(f"LEVEL: {level}", font, const.WHITE, const.SCREEN_WIDTH/2, 15)
-    #show score
-    draw_text(f" x {kebo.score}",font, const.WHITE, const.SCREEN_WIDTH - 100, 15)
-
-#Function to reset levels
-def reset_level() -> list:
-    damage_text_group.empty()
-    projectile_group.empty()
-    item_group.empty()
-    ballattack_group.empty()
-    
-    #create empty tile list
-    w_data = []
-    for row in range(const.ROWS):
-        r = [-1] * const.COLS
-        w_data.append(r)
-    
-    return w_data
-
-#create empty tile list
-world_data = []
-for row in range(const.ROWS):
-    r = [-1] * const.COLS
-    world_data.append(r)
-#load in level data and create world
-with open(f"levels/level{level}_data.csv", newline="") as csvfile:
-    reader = csv.reader(csvfile, delimiter = ",")
-    for x, row in enumerate(reader):
-        for y, tile in enumerate(row):
-            world_data[x][y] = int(tile)
-
-
-world = Garden()
-world.process_data(world_data, tile_list, item_images, mob_animations)
-
-#Create player and enemies
-kebo = world.player
-
-#Create player's weapon
-weapon = Weapon(weapon_image, projectile_image)
-
-#extrat enemies from world data
-enemy_list = world.character_list
-
-#Create sprite groups
+# CREATING GROUPS FOR LEVELS
 damage_text_group = pygame.sprite.Group()
 projectile_group = pygame.sprite.Group()
 item_group = pygame.sprite.Group()
 ballattack_group = pygame.sprite.Group()
 
-score_bone = Item(const.SCREEN_WIDTH - 115, 26, 0, bone_images, True)
+# Information for the first level
+world_data, world = game_init.restate_world(level)
+world.process_data(world_data, tile_list, item_images, mob_animations)
+kebo = world.player
+weapon = Weapon(weapon_image, projectile_image)
+
+#Extract enemies from world_data
+enemy_list = world.character_list
+score_bone = image_init.create_score_bone(bone_images)
 item_group.add(score_bone)
+
 # add the items from the level data
 for item in world.item_list:
     item_group.add(item)
 
-
-# Create screen fade animation
-intro_fade = ScreenFade(screen, 1, const.BLACK, 4)
-death_fade = ScreenFade(screen, 2, const.PINK, 6)
-
 #Main game loop
 run = True
 while run: 
-    #Control frame rate
     clock.tick(60)
     
-    if start_game == False:
-        #game menu
+    # SHOW GAME MENU
+    if start_game == False: 
         screen.blit(cover, (0, 0))
         if buttons["start_button"].draw(screen):
             start_game = True
@@ -182,6 +89,7 @@ while run:
         if buttons["exit_button"].draw(screen):
             run = False
     else:
+    # SHOW PAUSE MENU   
         if pause_game == True:
             pygame.mixer.music.set_volume(0)
             sounds["pause_sound"].play()
@@ -191,28 +99,14 @@ while run:
             if buttons["exit_button"].draw(screen):
                 run = False
         else:
-            #Repaint background
             screen.fill(const.BG)
-            
             if kebo.animation.stats.alive:
                 sounds["pause_sound"].stop()
                 pygame.mixer.music.set_volume(0.3)
-
                 #Calculate player movement
-                dx = 0
-                dy = 0
-                if moving_left:
-                    dx -= const.SPEED
-                if moving_right:
-                    dx += const.SPEED
-                if moving_down:
-                    dy += const.SPEED
-                if moving_up:
-                    dy -= const.SPEED
-                
+                dx, dy = event_handler.calculate_player_movement(moving_left, moving_right, moving_down, moving_up)
                 #Move player
                 screen_scroll, level_complete = kebo.move(dx, dy, world.obstacle_tiles, world.exit_tile)
-                
                 #UPDATE
                 #   player
                 kebo.animation.update()
@@ -247,11 +141,7 @@ while run:
                             ballattack_group.add(ballattack)
                     else:
                         enemy.ai(kebo, world.obstacle_tiles, screen_scroll)
-                    # if kebo.hit:
-                    #     hurt_sound.play()
-                    
                     if enemy.animation.stats.alive:
-                        # TODO: add an animation or indicator that the enemy's dead besides stopping its movement
                         enemy.animation.update()
                 
                 damage_text_group.update(screen_scroll)
@@ -260,31 +150,20 @@ while run:
                 world.update(screen_scroll)   
                 
             #DRAW 
-            #  tiles on screen (world)
             world.draw(screen)
-            #   player on the screen
             kebo.animation.draw(screen)
-            #   Weapon on the screen
             weapon.draw(screen)
-            
-            #   Projectiles on the screen
             for projectile in projectile_group:
                 projectile.draw(screen)
-            
-            #projectile_group.draw(screen)
-
-            #  ballattacks on the screen
             for ballattack in ballattack_group:
                 ballattack.draw(screen)
-            
-            #   enemies on screen
             for enemy in enemy_list:
                 if enemy.animation.stats.alive:
                     enemy.animation.draw(screen)
 
             damage_text_group.draw(screen)
             item_group.draw(screen)
-            draw_info()
+            game_init.draw_info_top_bar(screen, kebo, heart, level, font)
             score_bone.draw(screen)
 
             #Check if level is complete
@@ -292,27 +171,18 @@ while run:
                 music_publisher.end_boss_fight()
                 sounds["level_up_sound"].play()
                 start_intro = True
-                level += 1
-                world_data = reset_level()
-                #load in level data and create world
-                with open(f"levels/level{level}_data.csv", newline="") as csvfile:
-                    reader = csv.reader(csvfile, delimiter = ",")
-                    for x, row in enumerate(reader):
-                        for y, tile in enumerate(row):
-                            world_data[x][y] = int(tile)
+                damage_text_group, projectile_group, item_group, ballattack_group = game_init.reset_groups(damage_text_group, projectile_group, item_group, ballattack_group)
+                level, world_data, world = game_init.next_level(level, world, world_data)
                 tile_list = image_init.load_tile_images(level)
-                if (level <= 3):
-                        world = Garden()
-                else: world = Dungeon()
-
                 world.process_data(world_data, tile_list, item_images, mob_animations)
+                
                 temporary_health = kebo.animation.stats.health
                 temporary_score = kebo.score
                 kebo = world.player
                 kebo.animation.stats.health = temporary_health
                 kebo.score = temporary_score
                 enemy_list = world.character_list
-                score_bone = Item(const.SCREEN_WIDTH - 115, 26, 0, bone_images, True)
+                score_bone = image_init.create_score_bone(bone_images)
                 item_group.add(score_bone)
                 for item in world.item_list:
                     item_group.add(item)
@@ -331,25 +201,16 @@ while run:
                         death_fade.fade_counter = 0
                         start_intro = True
                         
-                        world_data = reset_level()
+                        damage_text_group, projectile_group, item_group, ballattack_group = game_init.reset_groups(damage_text_group, projectile_group, item_group, ballattack_group)
                         #load in level data and create world
-                        with open(f"levels/level{level}_data.csv", newline="") as csvfile:
-                            reader = csv.reader(csvfile, delimiter = ",")
-                            for x, row in enumerate(reader):
-                                for y, tile in enumerate(row):
-                                    world_data[x][y] = int(tile)
-                        
+                        world_data, world = game_init.restate_world(level)
                         tile_list = image_init.load_tile_images(level)
-                        if (level <= 3):
-                            world = Garden()
-                        else: world = Dungeon()
-                        
                         world.process_data(world_data, tile_list, item_images, mob_animations)
                         temporary_score = kebo.score
                         kebo = world.player
                         kebo.score = temporary_score
                         enemy_list = world.character_list
-                        score_bone = Item(const.SCREEN_WIDTH - 115, 26, 0, bone_images, True)
+                        score_bone = image_init.create_score_bone(bone_images)
                         item_group.add(score_bone)
                         for item in world.item_list:
                             item_group.add(item)
@@ -358,33 +219,9 @@ while run:
     #Event handler
     for event in pygame.event.get():
         #Close game
-        if event.type == pygame.QUIT:
-            run = False
-        #Keyboard presses
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
-                moving_left = True
-            if event.key == pygame.K_d:
-                moving_right = True
-            if event.key == pygame.K_w:
-                moving_up = True
-            if event.key == pygame.K_s:
-                moving_down = True
-            if event.key == pygame.K_ESCAPE:
-                pause_game = True
-                
-        #Keyboard released
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_a:
-                moving_left = False
-            if event.key == pygame.K_d:
-                moving_right = False
-            if event.key == pygame.K_w:
-                moving_up = False
-            if event.key == pygame.K_s:
-                moving_down = False
-            
-    #Update graphics
-    pygame.display.update()
-            
+        run = event_handler.is_game_closed(event)
+        #Keyboard presses and releases
+        moving_left, moving_right, moving_up, moving_down, pause_game = event_handler.check_keyboard(event)
+
+    pygame.display.update()       
 pygame.quit()
