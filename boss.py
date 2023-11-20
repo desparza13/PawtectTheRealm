@@ -59,6 +59,9 @@ class Boss(Character):
         return self.animation.rect.colliderect(screen_rect)
     
     def manage_boss_music(self, screen_scroll) -> None:
+        """
+        Notifies the observer in case the boss music needs to be started or stopped.
+        """
         # Stop boss music and reset flag if the boss is not alive
         if not self.animation.stats.alive and self.boss_music_started:
             self.notify_boss_defeated()  
@@ -222,7 +225,7 @@ class Boss(Character):
         if self.publisher:
             self.publisher.end_boss_fight()
             
-    def define_ball_color(self, ball):
+    def define_ball_color(self, ball) -> weapon.BallAttack:
         '''
         Define the color of the ball based on the boss's health
         '''

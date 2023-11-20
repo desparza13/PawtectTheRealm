@@ -14,7 +14,7 @@ sounds = game_init.load_audio_assets()
 font = game_init.define_font()
 
 #define game variables
-level = 1
+level = 6
 start_game = False
 pause_game = False
 start_intro = False
@@ -75,7 +75,6 @@ item_group.add(score_bone)
 for item in world.item_list:
     item_group.add(item)
 
-# TODO: seguir refactorizando el MAIN LOOP
 run = True
 while run: 
     clock.tick(60)
