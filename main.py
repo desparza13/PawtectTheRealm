@@ -212,8 +212,12 @@ while run:
     for event in pygame.event.get():
         #Close game
         run = event_handler.is_game_closed(event)
-        #Keyboard presses and releases
-        moving_left, moving_right, moving_up, moving_down, pause_game = event_handler.check_keyboard(event)
-
+        #Keyboard presses and releases for the movement and pause state
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pause_game = True
+            else: pause_game = False   
+        moving_left, moving_right, moving_up, moving_down = event_handler.check_keyboard(event)
+    
     pygame.display.update()       
 pygame.quit()
