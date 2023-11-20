@@ -35,18 +35,41 @@ class Projectile(pygame.sprite.Sprite):
         self.dx = math.cos(math.radians(self.angle)) * const.PROJECTILE_SPEED
         self.dy = -math.sin(math.radians(self.angle)) * const.PROJECTILE_SPEED
 
-    def update(self, screen_scroll, obstacle_tiles, enemy_list) -> None:
+    def update(self, screen_scroll, obstacle_tiles, enemy_list) -> tuple:
         """
-        Update the projectile's position, check for collisions, and remove it if necessary.
+        Update the projectile's position, check for collisions with obstacles and enemies, 
+        and remove it if necessary.
+        """
+        self.update_position(screen_scroll)
+        if self.collide_with_obstacles(obstacle_tiles):
+            return 0, None
+        hit_enemy = self.collide_with_enemies(enemy_list)
+        if hit_enemy:
+            return hit_enemy
+        self.check_off_screen()
+        return 0, None
+
+    def update_position(self, screen_scroll):
+        """
+        Update the projectile's position based on the screen scroll.
         """
         self.rect.x += screen_scroll[0] + self.dx
         self.rect.y += screen_scroll[1] + self.dy
 
+    def collide_with_obstacles(self, obstacle_tiles) -> bool:
+        """
+        Check for collisions with obstacles and remove the projectile if necessary.
+        """
         for obstacle in obstacle_tiles:
             if obstacle[1].colliderect(self.rect):
                 self.kill()
-                return 0, None
+                return True
+        return False
 
+    def collide_with_enemies(self, enemy_list) -> tuple:
+        """
+        Check for collisions with enemies and remove the projectile if it hits them.
+        """
         for enemy in enemy_list:
             if enemy.animation.rect.colliderect(self.rect) and enemy.animation.stats.alive:
                 damage = 10 + random.randint(0, 5)
@@ -54,12 +77,15 @@ class Projectile(pygame.sprite.Sprite):
                 enemy.animation.stats.hit = True
                 self.kill()
                 return damage, enemy.animation.rect
+        return None
 
+    def check_off_screen(self):
+        """
+        Check if the projectile exceeds the boundaries of the screen and removes it.
+        """
         if (self.rect.right < 0 or self.rect.left > const.SCREEN_WIDTH or
                 self.rect.bottom < 0 or self.rect.top > const.SCREEN_HEIGHT):
             self.kill()
-
-        return 0, None
 
     def draw(self, surface) -> None:
         """

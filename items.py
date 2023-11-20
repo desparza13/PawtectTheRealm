@@ -51,7 +51,7 @@ class Item(pygame.sprite.Sprite):
         """
         if self.rect.colliderect(player.animation.rect):
             if self.item_type == 0:  # Bone
-                self.collect_bone(player, bone_sound)
+                self.collect_bone(player, bone_sound, heal_sound)
             elif self.item_type == 1:  # Potion
                 self.collect_potion(player, heal_sound)
             self.kill()
@@ -64,7 +64,7 @@ class Item(pygame.sprite.Sprite):
         if player.animation.stats.health > 100:
             player.animation.stats.health = 100
         
-    def collect_bone(self, player, bone_sound) -> None:
+    def collect_bone(self, player, bone_sound, heal_sound) -> None:
         """
         Updates the player's score and plays a sound effect when a bone is collected.
         """
@@ -72,6 +72,7 @@ class Item(pygame.sprite.Sprite):
         if player.score >= 9:
             self.player_gained_health(player)
             player.score = 0
+            heal_sound.play()
         player.score += 1
         bone_sound.play()
 
