@@ -75,9 +75,12 @@ def draw_info_top_bar(screen, player, heart, level, font) -> None:
             screen.blit(heart["heart_empty"], (10 + i * 50,0))
 
     #level
-    draw_text(screen, f"LEVEL: {level}", font, const.WHITE, const.SCREEN_WIDTH/2, 15)
-    #show score
+    if level == 7: 
+        draw_text(screen, "The end!", font, const.WHITE, const.SCREEN_WIDTH/2, 17)
+    else: 
+        draw_text(screen, f"LEVEL: {level}", font, const.WHITE, const.SCREEN_WIDTH/2, 15)
     draw_text(screen, f" x {player.score}",font, const.WHITE, const.SCREEN_WIDTH - 100, 15)
+    
 
 
 # -- DEFINE FONT AND DRAW TEXT --
@@ -117,7 +120,7 @@ def restate_world(level) -> tuple:
         w_data.append(r)
 
     load_in_level_data(level, w_data)
-    if level <= 3:
+    if level <= 3 or level == 7:
         world = Garden()
 
     return w_data, world
@@ -148,6 +151,6 @@ def create_screen_fades(screen) -> tuple:
     Creates a list of screen fade images.
     """
     intro_fade = ScreenFade(screen, 1, const.BLACK, 4)
-    death_fade = ScreenFade(screen, 2, const.PINK, 6)
+    death_fade = ScreenFade(screen, 2, const.DARK_RED, 6)
     return intro_fade, death_fade
 

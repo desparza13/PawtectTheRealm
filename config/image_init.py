@@ -33,7 +33,7 @@ def create_buttons() -> dict:
     # Returns Button objects
     button_images = load_button_images()
     button_objects = {
-        "restart_button": Button(const.MIDDLE_WIDTH-175, const.MIDDLE_HEIGHT-60, button_images["restart"]),
+        "restart_button": Button(const.MIDDLE_WIDTH-190, const.MIDDLE_HEIGHT-60, button_images["restart"]),
         "exit_button": Button(const.MIDDLE_WIDTH-105, const.MIDDLE_HEIGHT+40, button_images["exit"]),
         "start_button": Button(const.MIDDLE_WIDTH-150, const.MIDDLE_HEIGHT-90, button_images["start"]),
         "resume_button": Button(const.MIDDLE_WIDTH-175, const.MIDDLE_HEIGHT-120, button_images["resume"])
@@ -69,6 +69,9 @@ def load_single_image(asset:str) -> pygame.Surface:
     elif asset == "cover":
         asset_image = pygame.image.load(const.COVER).convert_alpha()
         asset_image = pygame.transform.scale(asset_image, (const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
+    elif asset == "game_over":
+        asset_image = pygame.image.load(const.GAME_OVER).convert_alpha()
+        asset_image = pygame.transform.scale(asset_image, (const.SCREEN_WIDTH, const.SCREEN_HEIGHT))
     return asset_image
 
 def load_four_frame_animation(asset:str) -> dict:
@@ -99,7 +102,7 @@ def load_tile_images(level:int) -> dict:
     tile_images = []
     tile_path = const.DUNGEON_TILE_PATH
     number_of_tiles = const.DUNGEON_TILE_TYPES
-    if level <= 3:
+    if level <= 3 or level == 7:
         tile_path = const.GARDEN_TILE_PATH
         number_of_tiles = const.GARDEN_TILE_TYPES
     

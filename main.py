@@ -14,7 +14,7 @@ sounds = game_init.load_audio_assets()
 font = game_init.define_font()
 
 #define game variables
-level = 6
+level = 1
 start_game = False
 pause_game = False
 start_intro = False
@@ -48,6 +48,7 @@ projectile_image = image_init.load_single_image("projectile")
 ballattack1 = Ball()
 # Background
 cover = image_init.load_single_image("cover")
+game_over_cover = image_init.load_single_image("game_over")
 
 # LOADING ANIMATIONS AND TILES
 tile_list = image_init.load_tile_images(level)
@@ -190,11 +191,10 @@ while run:
             #Show death screen
             if kebo.animation.stats.alive == False: 
                 if death_fade.fade():
-                    
+                    screen.blit(game_over_cover, (0, 0))
                     if buttons["restart_button"].draw(screen):
                         death_fade.fade_counter = 0
                         start_intro = True
-                        
                         damage_text_group, projectile_group, item_group, ballattack_group = game_init.reset_groups(damage_text_group, projectile_group, item_group, ballattack_group)
                         #load in level data and create world
                         world_data, world = game_init.restate_world(level)

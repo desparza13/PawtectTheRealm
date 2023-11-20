@@ -17,6 +17,7 @@ PANEL_INFO = (50,50,50)
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 PINK = (235,65,54)
+DARK_RED =(75,9,6)
 
 #Player size
 SCALE = 3
@@ -130,3 +131,4 @@ WEAPON = WEAPONS_PATH + 'weapon1.png'
 # Backgrounds
 BACKGROUND_PATH = 'assets/backgrounds/'
 COVER = BACKGROUND_PATH + 'cover.png'
+GAME_OVER = BACKGROUND_PATH + 'game_over.png'
