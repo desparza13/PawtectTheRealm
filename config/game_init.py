@@ -130,7 +130,6 @@ def load_in_level_data(level, world_data) -> list:
     Loads the level data from a csv file according to a specific level number.
     """
     level_path = const.LEVELS_PATH + str(level) + "_data.csv"
-    print(level_path)
     with open(level_path, newline="") as csvfile:
         reader = csv.reader(csvfile, delimiter = ",")
         for x, row in enumerate(reader):
