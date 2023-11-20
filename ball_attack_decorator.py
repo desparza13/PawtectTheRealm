@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import config.constants as const
 
 class Attack(ABC):
     """
@@ -8,7 +9,7 @@ class Attack(ABC):
     """
     
     @abstractmethod
-    def use(self):
+    def use(self) -> str:
         """
         Abstract method that should be overridden to return the path where
         the weapon's assets are located.
@@ -26,7 +27,7 @@ class Ball(Attack):
         Implements the use method to return the directory where basic ball
         assets are stored.
         """
-        return 'assets/weapons'
+        return const.WEAPONS_PATH
 
 class Decorator(Attack):
     """
@@ -59,7 +60,7 @@ class BlueBall(Decorator):
         """
         Adds a blue ball asset to the path provided by the wrapped ball object.
         """
-        return f"{self.ball.use()}/ballattack_b.png"
+        return f"{self.ball.use()}{const.BALLATTACK_B}"
     
 class OrangeBall(Decorator):
     """
@@ -71,7 +72,7 @@ class OrangeBall(Decorator):
         """
         Adds an orange ball asset to the path provided by the wrapped ball object.
         """
-        return f"{self.ball.use()}/ballattack_o.png"
+        return f"{self.ball.use()}{const.BALLATTACK_O}"
 
 class YellowBall(Decorator):
     """
@@ -83,4 +84,4 @@ class YellowBall(Decorator):
         """
         Adds a yellow ball asset to the path provided by the wrapped ball object.
         """
-        return f"{self.ball.use()}/ballattack_y.png"
+        return f"{self.ball.use()}{const.BALLATTACK_Y}"

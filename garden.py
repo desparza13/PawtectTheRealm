@@ -13,7 +13,7 @@ class Garden(World):
     A class that represents a garden level in the game. It processes the level data to place tiles, 
     obstacles, items, and characters. Inherits from the World class.
     """
-    def process_data(self, data, tile_list, item_images, mob_animations):
+    def process_data(self, data, tile_list, item_images, mob_animations) -> None:
         """
         Processes the level data for the garden level, creating tiles, items, and characters based on the data.
         """

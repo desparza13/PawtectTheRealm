@@ -13,7 +13,7 @@ class Dungeon(World):
     and places them in the game world based on a provided level data structure.
     """
     
-    def process_data(self, data, tile_list, item_images, mob_animations):
+    def process_data(self, data, tile_list, item_images, mob_animations) -> None:
         """
         Takes raw level data and processes it to populate the dungeon with tiles, items, and characters.
         """

@@ -16,7 +16,7 @@ class Button():
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         
-    def draw(self, surface):
+    def draw(self, surface) -> bool:
         """
         Draws the button on the specified surface and returns True if the button is clicked.
         """

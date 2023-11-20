@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
 import math
-import pygame
-import config.constants as const
 import animation
 
 class Character(ABC):
@@ -10,41 +8,49 @@ class Character(ABC):
     This class should be subclassed to create specific character types.
 
     Attributes:
-        char_type (str): The type of character (e.g., 'player', 'enemy').
+        char_type (int): The type of character.
         animation (Animation): An animation object managing the character's sprites and movements.
     """
     
-    def __init__(self, x, y, mob_animation, char_type, size, stats):
+    def __init__(self, x, y, mob_animation, char_type, size, stats) -> None:
         '''
         Initialize a new character
         '''
         self.char_type = char_type
         self.animation = animation.Animation(mob_animation, char_type, size, x, y, stats)    
         
-    def collide_with_obstacles(self, dx, dy, obstacle_tiles):
+    def collide_with_obstacles(self, dx, dy, obstacle_tiles) -> None:
         '''
-        Handles character collision with obstacles
+        Handles character collision with obstacles in both x and y directions.
         '''
-        #Move the character
-        self.animation.rect.x += dx 
+        self.x_collision(dx, obstacle_tiles)
+        self.y_collision(dy, obstacle_tiles)
+
+    def x_collision(self, dx, obstacle_tiles) -> None:
+        '''
+        Handles character collision with obstacles in the x direction.
+        '''
+        self.animation.rect.x += dx
         for obstacle in obstacle_tiles:
-            #Check collision in the x direction
             if obstacle[1].colliderect(self.animation.rect):
-                if dx > 0: #Moving right
+                if dx > 0:  # Moving right
                     self.animation.rect.right = obstacle[1].left
-                elif dx < 0: #Moving left
+                elif dx < 0:  # Moving left
                     self.animation.rect.left = obstacle[1].right
-        #Check collision in the y direction
-        self.animation.rect.y += dy 
+
+    def y_collision(self, dy, obstacle_tiles) -> None:
+        '''
+        Handles character collision with obstacles in the y direction.
+        '''
+        self.animation.rect.y += dy
         for obstacle in obstacle_tiles:
-            #check collision in the y direction
             if obstacle[1].colliderect(self.animation.rect):
-                if dy > 0: #Moving down
+                if dy > 0:  # Moving down
                     self.animation.rect.bottom = obstacle[1].top
-                elif dy < 0: #Moving up
+                elif dy < 0:  # Moving up
                     self.animation.rect.top = obstacle[1].bottom
                     
-    def control_diagonal_speed(self,dx,dy):
+    def control_diagonal_speed(self,dx,dy) -> tuple:
         '''
         Adjusts the character's speed when moving diagonally to maintain a consistent overall velocity.
         '''
@@ -52,7 +58,7 @@ class Character(ABC):
         return (dx * factor), (dy * factor)
             
     @abstractmethod        
-    def move():
+    def move() -> None:
         '''
         Abstract method to be implemented by subclasses to define character movement.
         '''

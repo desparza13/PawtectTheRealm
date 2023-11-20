@@ -1,8 +1,5 @@
-import math
 import pygame
 import config.constants as const
-import stats
-from music_controller import GameEventPublisher
 
 class Animation():
     """
@@ -21,7 +18,7 @@ class Animation():
     """
     HIT_COOLDOWN = 1000  # Cooldown period for hit animation
 
-    def __init__(self, mob_animation, char_type, size, x, y, stats):
+    def __init__(self, mob_animation, char_type, size, x, y, stats) -> None:
         '''
         Initializes the Animation object with the given parameters.
         '''
@@ -33,11 +30,11 @@ class Animation():
         self.image = self.animation_list[self.action][self.frame_index]
         self.char_type = char_type
         #set character position
-        self.rect = self._create_rect(size, x, y)
+        self.rect = self.create_rect(size, x, y)
         #stats
         self.stats = stats
         
-    def _create_rect(self, size, x, y):
+    def create_rect(self, size, x, y) -> pygame.Rect:
         '''
         Creates a rectangle for the character's position and size.
         '''
@@ -45,14 +42,14 @@ class Animation():
         rect.center = (x, y)
         return rect
     
-    def draw(self, surface):
+    def draw(self, surface) -> None:
         '''
         Draws the character's current animation frame onto a surface.
         '''
         offset_y = const.OFFSET * const.SCALE if self.char_type == 0 else 0
         surface.blit(pygame.transform.flip(self.image, self.flip, False), (self.rect.x, self.rect.y - offset_y))
             
-    def update_animation_timing(self):
+    def update_animation_timing(self) -> None:
         '''
         Updates the animation frame index based on timing, advancing the animation.
         '''
@@ -60,14 +57,14 @@ class Animation():
             self.frame_index +=1 #move to the next frame
             self.update_time = pygame.time.get_ticks() #reset the timer
             
-    def reset_animation_if_finished(self):
+    def reset_animation_if_finished(self) -> None:
         '''
         Resets the animation frame index if the end of the animation list is reached.
         '''
         if self.frame_index >= len(self.animation_list[self.action]):
             self.frame_index = 0 #reset frame index
     
-    def update_health_status(self):
+    def update_health_status(self) -> None:
         '''
         Updates the character's health status, setting alive status to False if health is depleted.
         '''
@@ -75,20 +72,20 @@ class Animation():
             self.stats.health = 0
             self.stats.alive = False
     
-    def has_hit_cooldown_passed(self):
+    def has_hit_cooldown_passed(self) -> bool:
         '''
         Checks if the cooldown period after a hit has passed.
         '''
         return pygame.time.get_ticks() - self.stats.last_hit > Animation.HIT_COOLDOWN
     
-    def update_hit_cooldown(self):
+    def update_hit_cooldown(self) -> None:
         '''
         Update timer to reset player taking the hit (1 hit per second)
         '''
         if self.char_type == 0 and self.stats.hit and self.has_hit_cooldown_passed():
             self.stats.hit = False        
     
-    def set_action(self,new_action):
+    def set_action(self,new_action) -> None:
         '''
         Changes the action state of the animation to a new one.
         '''
@@ -99,7 +96,7 @@ class Animation():
             self.frame_index=0
             self.update_time = pygame.time.get_ticks()
                 
-    def update(self):
+    def update(self) -> None:
         '''
         The main method to update the character's animation state and frame index.
         '''

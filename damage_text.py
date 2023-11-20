@@ -1,6 +1,5 @@
 import pygame
 
-
 class DamageText(pygame.sprite.Sprite):
     """
     A sprite for displaying damage text that floats up and fades out.
@@ -21,7 +20,7 @@ class DamageText(pygame.sprite.Sprite):
         self.rect.center = (x,y)
         self.counter = 0 
         
-    def update(self, screen_scroll):
+    def update(self, screen_scroll) -> None:
         """
         Update the position of the text, moving it up and fading it out over time.
         """

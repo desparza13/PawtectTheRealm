@@ -11,10 +11,10 @@ class Boss(Character):
     This class inherits from the Character abstract base class.
 
     Attributes:
-        boss_music_started
-        publisher
+        boss_music_started (bool): Flag indicating whether the boss music (observer) has started.
+        ...
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """
         Initialize the Boss object with the same arguments as the Character class, and sets the
         flag for boss music to not started.
@@ -23,14 +23,14 @@ class Boss(Character):
         self.boss_music_started = False
         
         
-    def set_publisher(self, publisher: GameEventPublisher):
+    def set_publisher(self, publisher: GameEventPublisher) -> None:
         """
         Sets the publisher for the boss to notify about game events such as starting and ending the boss fight.
         """
         self.publisher = publisher
         
         
-    def move(self, dx, dy, obstacle_tiles):
+    def move(self, dx, dy, obstacle_tiles) -> None:
         """
         Moves the boss character and checks for collisions with obstacles.
         """
@@ -50,14 +50,14 @@ class Boss(Character):
         self.collide_with_obstacles(dx,dy,obstacle_tiles)
         
         
-    def is_visible_on_screen(self, screen_scroll):
+    def is_visible_on_screen(self, screen_scroll) -> bool:
         """
         Checks if the boss is currently visible on screen.
         """
         screen_rect = pygame.Rect(screen_scroll[0], screen_scroll[1], const.SCREEN_WIDTH, const.SCREEN_HEIGHT)
         return self.animation.rect.colliderect(screen_rect)
     
-    def manage_boss_music(self, screen_scroll):
+    def manage_boss_music(self, screen_scroll) -> None:
         # Stop boss music and reset flag if the boss is not alive
         if not self.animation.stats.alive and self.boss_music_started:
             self.notify_boss_defeated()  
@@ -75,7 +75,7 @@ class Boss(Character):
                 self.boss_music_started = False
                 
                 
-    def ai(self, player, obstacle_tiles, screen_scroll, ballattack_image):
+    def ai(self, player, obstacle_tiles, screen_scroll, ballattack_image) -> weapon.BallAttack:
         """
         Defines the AI logic for the boss, including moving towards the player and attacking.
         """
@@ -105,20 +105,20 @@ class Boss(Character):
         # Return a BallAttack object if an attack was initiated, None otherwise
         return ballattack
     
-    def update_position_with_screen_scroll(self, screen_scroll):
+    def update_position_with_screen_scroll(self, screen_scroll) -> None:
         """
         Updates the boss's position based on the screen scroll.
         """
         self.animation.rect.x += screen_scroll[0]
         self.animation.rect.y += screen_scroll[1]
 
-    def create_line_of_sight(self, player):
+    def create_line_of_sight(self, player) -> tuple:
         """
         Creates a line of sight from the boss to the player for visibility checks.
         """
         return ((self.animation.rect.centerx, self.animation.rect.centery), (player.animation.rect.centerx, player.animation.rect.centery))
     
-    def is_player_visible(self, obstacle_tiles, line_of_sight):
+    def is_player_visible(self, obstacle_tiles, line_of_sight) -> bool:
         """
         Checks if the player is visible to the boss, considering obstacles.
         """
@@ -128,14 +128,14 @@ class Boss(Character):
                 return False
         return True
     
-    def calculate_distance_to_player(self, player):
+    def calculate_distance_to_player(self, player) -> float:
         """
         Calculates the distance from the boss to the player.
         """
         return math.sqrt((self.animation.rect.centerx - player.animation.rect.centerx)**2 + 
                          ((self.animation.rect.centery - player.animation.rect.centery)**2))
         
-    def determine_ai_movement(self, player,should_move_towards_player):
+    def determine_ai_movement(self, player,should_move_towards_player) -> tuple:
         """
         Determines the movement direction for the AI based on whether the player is visible and in range.
         """
@@ -151,7 +151,7 @@ class Boss(Character):
                 ai_dy = const.ENEMY_SPEED
         return ai_dx, ai_dy
     
-    def attack_with_ball(self,dist,ballattack_image, ballattack_cooldown,player):
+    def attack_with_ball(self,dist,ballattack_image, ballattack_cooldown,player) -> weapon.BallAttack:
         ''' 
         Handles the boss's ball attack
         '''
@@ -163,7 +163,7 @@ class Boss(Character):
                 
         return ballattack
     
-    def handle_hit_stun(self):
+    def handle_hit_stun(self) -> None:
         """
         Handles the boss being hit and potentially stunned.
         """
@@ -174,7 +174,7 @@ class Boss(Character):
             self.animation.stats.running = False
             self.animation.set_action(0) #0: idle
     
-    def execute_ai_actions(self, ai_dx, ai_dy, obstacle_tiles, player, dist, ballattack_image, stun_cooldown):
+    def execute_ai_actions(self, ai_dx, ai_dy, obstacle_tiles, player, dist, ballattack_image, stun_cooldown) -> weapon.BallAttack:
         """
         Executes the actions determined by the AI logic, including moving and attacking the player.
         """
@@ -197,7 +197,7 @@ class Boss(Character):
         
         return ballattack
             
-    def attack_the_player(self, dist, player):
+    def attack_the_player(self, dist, player) -> None:
         """
         Initiates an attack on the player if within a certain range.
         """
@@ -207,18 +207,16 @@ class Boss(Character):
             player.animation.stats.hit = True
             player.animation.stats.last_hit = pygame.time.get_ticks()
 
-    def notify_boss_appeared(self):
+    def notify_boss_appeared(self) -> None:
         """
         Notifies the game event publisher that the boss has appeared.
         """
         if self.publisher:
             self.publisher.start_boss_fight()
 
-    def notify_boss_defeated(self):
+    def notify_boss_defeated(self) -> None:
         """
         Notifies the game event publisher that the boss has been defeated.
         """
         if self.publisher:
             self.publisher.end_boss_fight()
-
-

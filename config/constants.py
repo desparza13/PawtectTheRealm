@@ -66,6 +66,7 @@ SCROLL_THRESH = 200
 # Music and sounds
 AUDIO_PATH = 'assets/audio/'
 MUSIC_PATH = AUDIO_PATH + 'music.wav'
+BOSS_MUSIC = AUDIO_PATH + 'boss_music.mp3'
 PROJECTILE_SHOT_SOUND = AUDIO_PATH + 'projectile_shot.mp3'
 PROJECTILE_HIT_SOUND = AUDIO_PATH + 'projectile_hit.wav'
 BONE_SOUND = AUDIO_PATH + 'bone.mp3'
@@ -109,11 +110,11 @@ BUDGIE2_RUN = CHARACTERS_PATH + 'budgie2/run/'
 KEBO_IDLE = CHARACTERS_PATH + 'kebo/idle/'
 KEBO_RUN = CHARACTERS_PATH + 'kebo/run/'
 
-# Weapons
+# Weapons (paths for decorator)
 WEAPONS_PATH = 'assets/weapons/'
-BALLATTACK_O = WEAPONS_PATH + 'ballattack_o.png'
-BALLATTACK_B = WEAPONS_PATH + 'ballattack_b.png'
-BALLATTACK_Y = WEAPONS_PATH + 'ballattack_y.png'
+BALLATTACK_O = 'ballattack_o.png'
+BALLATTACK_B = 'ballattack_b.png'
+BALLATTACK_Y = 'ballattack_y.png'
 PROJECTILE = WEAPONS_PATH + 'projectile.png'
 WEAPON = WEAPONS_PATH + 'weapon1.png'
 
