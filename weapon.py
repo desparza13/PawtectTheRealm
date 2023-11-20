@@ -49,7 +49,7 @@ class Projectile(pygame.sprite.Sprite):
         self.check_off_screen()
         return 0, None
 
-    def update_position(self, screen_scroll):
+    def update_position(self, screen_scroll) -> None:
         """
         Update the projectile's position based on the screen scroll.
         """
@@ -79,7 +79,7 @@ class Projectile(pygame.sprite.Sprite):
                 return damage, enemy.animation.rect
         return None
 
-    def check_off_screen(self):
+    def check_off_screen(self) -> None:
         """
         Check if the projectile exceeds the boundaries of the screen and removes it.
         """
@@ -133,31 +133,47 @@ class Weapon:
         Update the weapon's position based on the player's position and fire a projectile if conditions are met.
         """
         shot_cooldown = 300  # Minimum time required between shots
-        projectile = None
 
         # Align the weapon with the player's position
         self.rect.center = player.animation.rect.center
+        
+        x_dist, y_dist = self.calculate_angle_with_cursor()
+        self.angle = math.degrees(math.atan2(y_dist, x_dist))
+        projectile = self.check_weapon_fire(shot_cooldown)
+        self.reset_fired_flag()
 
-        # Calculate the angle between the weapon and the mouse cursor
+        return projectile
+
+    def calculate_angle_with_cursor(self) -> tuple:
+        '''
+        Calculate the angle between the weapon and the mouse cursor
+        '''
         mouse_pos = pygame.mouse.get_pos()
         x_dist = mouse_pos[0] - self.rect.centerx
         y_dist = -(mouse_pos[1] - self.rect.centery)  # Pygame's y-axis is inverted
-
-        self.angle = math.degrees(math.atan2(y_dist, x_dist))
-
-        # Check for mouse click and if the weapon is ready to fire again
+    
+        return x_dist,y_dist
+    
+    def check_weapon_fire(self, shot_cooldown) -> Projectile:
+        '''
+        Check for mouse click and if the weapon is ready to fire again
+        '''
+        projectile = None
         if (pygame.mouse.get_pressed()[0] and not self.fired and
                 (pygame.time.get_ticks() - self.last_shot) >= shot_cooldown):
             projectile = Projectile(self.projectile_image, self.rect.centerx, self.rect.centery, self.angle)
             self.fired = True
             self.last_shot = pygame.time.get_ticks()
-
-        # Reset the fired flag when the mouse button is released
+            
+        return projectile
+    
+    def reset_fired_flag(self) -> None:
+        '''
+        Reset the fired flag when the mouse button is released
+        '''
         if not pygame.mouse.get_pressed()[0]:
             self.fired = False
-
-        return projectile
-
+            
     def draw(self, surface) -> None:
         """
         Draws the weapon onto the given surface, rotating it around the player.
@@ -171,8 +187,6 @@ class Weapon:
 
         # Draw the weapon on the surface
         surface.blit(self.image, (image_center_x, image_center_y))
-
-
 
         
 class BallAttack(pygame.sprite.Sprite):
