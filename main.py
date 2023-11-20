@@ -75,7 +75,7 @@ item_group.add(score_bone)
 for item in world.item_list:
     item_group.add(item)
 
-#Main game loop
+# TODO: seguir refactorizando el MAIN LOOP
 run = True
 while run: 
     clock.tick(60)
@@ -215,8 +215,6 @@ while run:
                         for item in world.item_list:
                             item_group.add(item)
                     
-            
-    #Event handler
     for event in pygame.event.get():
         #Close game
         run = event_handler.is_game_closed(event)
